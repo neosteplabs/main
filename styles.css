@@ -180,3 +180,12 @@ footer {
   cursor: pointer;
   font-weight: bold;
 }
+footer a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 5px;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
