@@ -1,4 +1,3 @@
-// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDzrAXCzu2VzxzV02jLW_SpiLJ0mLK8N1g",
   authDomain: "neostep-portal-b9ea3.firebaseapp.com",
@@ -12,44 +11,52 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-auth.onAuthStateChanged(() => router());
+auth.onAuthStateChanged(user => router());
+
 window.addEventListener("hashchange", router);
 
-async function router() {
+function router() {
   const content = document.getElementById("content");
   const page = window.location.hash.replace("#", "") || "home";
   const user = auth.currentUser;
 
   if (page === "catalog") {
     if (!user) {
-      content.innerHTML = `<section class="hero"><h1>Login Required</h1></section>`;
+      content.innerHTML = `
+        <div class="login-panel">
+          <h2>Secure Access Required</h2>
+          <p>Enter your email to receive a login link.</p>
+          <input type="email" id="email" placeholder="Email address">
+          <button onclick="sendLink()">Send Login Link</button>
+          <p id="message"></p>
+        </div>
+      `;
       return;
     }
 
-    const snapshot = await db.collection("products")
-      .where("visible", "==", true)
-      .get();
-
-    let html = "";
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      html += `
-        <div class="product-card">
-          <div class="product-image">
-            <img src="${p.image}" alt="${p.code}">
+    db.collection("products").where("visible","==",true).get().then(snapshot => {
+      let html = "";
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        html += `
+          <div class="product-card">
+            <div class="product-image">
+              <img src="${p.image}" alt="${p.code}">
+            </div>
+            <h3>${p.code}</h3>
+            <p>${p.description}</p>
           </div>
-          <h3>${p.code}</h3>
-          <p>${p.description}</p>
-        </div>
+        `;
+      });
+
+      content.innerHTML = `
+        <section class="catalog-page">
+          <h1>Research Compound Catalog</h1>
+          <div class="product-grid">${html}</div>
+        </section>
       `;
     });
 
-    content.innerHTML = `
-      <section class="catalog-page">
-        <h1>Research Compound Catalog</h1>
-        <div class="product-grid">${html}</div>
-      </section>
-    `;
     return;
   }
 
@@ -60,6 +67,32 @@ async function router() {
       <a href="#catalog" class="btn">Access Catalog</a>
     </section>
   `;
+}
+
+function sendLink() {
+  const email = document.getElementById("email").value;
+
+  const actionCodeSettings = {
+    url: window.location.origin + window.location.pathname,
+    handleCodeInApp: true
+  };
+
+  auth.sendSignInLinkToEmail(email, actionCodeSettings)
+    .then(() => {
+      window.localStorage.setItem('emailForSignIn', email);
+      document.getElementById("message").innerText = "Login link sent. Check your email.";
+    });
+}
+
+if (auth.isSignInWithEmailLink(window.location.href)) {
+  let email = window.localStorage.getItem('emailForSignIn');
+  if (!email) email = window.prompt('Confirm your email');
+
+  auth.signInWithEmailLink(email, window.location.href)
+    .then(() => {
+      window.localStorage.removeItem('emailForSignIn');
+      window.location.hash = "#catalog";
+    });
 }
 
 router();
