@@ -24,10 +24,6 @@ function router() {
       <div class="hero">
         <h2>Contact NeoStep</h2>
         <p>Email: <strong>neosteplabs@gmail.com</strong></p>
-        <p style="margin-top:20px;font-size:0.9rem;opacity:0.85;">
-          All products are intended strictly for research use only.
-          Not for human or veterinary use.
-        </p>
       </div>
     `;
     return;
@@ -99,13 +95,17 @@ function sendLink() {
 
 if (auth.isSignInWithEmailLink(window.location.href)) {
   let email = window.localStorage.getItem('emailForSignIn');
-  if (!email) email = window.prompt('Confirm your email');
 
-  auth.signInWithEmailLink(email, window.location.href)
-    .then(() => {
-      window.localStorage.removeItem('emailForSignIn');
-      window.location.hash = "#catalog";
-    });
+  if (!email) {
+    // Silent redirect instead of browser prompt
+    window.location.hash = "#catalog";
+  } else {
+    auth.signInWithEmailLink(email, window.location.href)
+      .then(() => {
+        window.localStorage.removeItem('emailForSignIn');
+        window.location.hash = "#catalog";
+      });
+  }
 }
 
 router();

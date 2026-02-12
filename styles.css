@@ -1,161 +1,30 @@
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+height:100%;
+font-family:'Inter',sans-serif;
+color:white;
+background:radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
+overflow-x:hidden;
+overscroll-behavior:none;
 }
-
-html, body {
-  height: 100%;
-  font-family: 'Inter', sans-serif;
-  color: white;
-  background: radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
-  overflow-x: hidden;
-  overscroll-behavior: none;
-}
-
-/* HEADER */
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  padding: 20px 0;
-  z-index: 1000;
-}
-
-.centered-nav {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: white;
-}
-
-.logo-icon {
-  width: 34px;
-  height: 34px;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 30px;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: rgba(255,255,255,0.9);
-}
-
-/* SCROLL AREA */
-#app {
-  position: fixed;
-  top: 110px;
-  bottom: 60px;
-  left: 0;
-  right: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-#content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 80px 20px;
-}
-
-/* HERO */
-.hero {
-  text-align: center;
-}
-
-.hero h1 {
-  font-size: 2.8rem;
-  margin-bottom: 20px;
-}
-
-.hero p {
-  margin-bottom: 30px;
-  opacity: 0.9;
-}
-
-.btn {
-  display: inline-block;
-  padding: 15px 36px;
-  background: white;
-  color: #0f172a;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-/* LOGIN */
-.login-panel {
-  text-align: center;
-}
-
-.login-panel input {
-  width: 100%;
-  padding: 14px;
-  margin: 20px 0;
-  border-radius: 8px;
-  border: none;
-}
-
-.login-panel button {
-  padding: 12px 28px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-/* CATALOG */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-}
-
-.product-card {
-  padding: 30px;
-  text-align: center;
-}
-
-.product-image img {
-  width: 100%;
-  height: 200px;
-  object-fit: contain;
-  margin-bottom: 20px;
-}
-
-/* FOOTER */
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: center;
-}
-
-.footer-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  text-align: center;
-  font-size: 0.85rem;
-  opacity: 0.85;
-}
+.navbar{position:fixed;top:0;width:100%;padding:20px 0;z-index:1000;}
+.centered-nav{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.logo{display:flex;align-items:center;gap:12px;font-size:1.6rem;font-weight:700;text-decoration:none;color:white;}
+.logo-icon{width:34px;height:34px;}
+.nav-links{list-style:none;display:flex;gap:30px;}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,0.9);}
+#app{position:fixed;top:110px;bottom:60px;left:0;right:0;overflow-y:auto;overscroll-behavior:contain;}
+#content{max-width:1000px;margin:0 auto;padding:80px 20px;}
+.hero{text-align:center;}
+.hero h1{font-size:2.8rem;margin-bottom:20px;}
+.hero p{margin-bottom:30px;opacity:0.9;}
+.btn{display:inline-block;padding:15px 36px;background:white;color:#0f172a;border-radius:10px;text-decoration:none;font-weight:600;}
+.login-panel{text-align:center;}
+.login-panel input{width:100%;padding:14px;margin:20px 0;border-radius:8px;border:none;}
+.login-panel button{padding:12px 28px;border-radius:8px;border:none;cursor:pointer;}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+.product-card{padding:30px;text-align:center;}
+.product-image img{width:100%;height:200px;object-fit:contain;margin-bottom:20px;}
+.footer{position:fixed;bottom:0;width:100%;height:60px;display:flex;align-items:center;}
+.footer-container{width:100%;max-width:1200px;margin:0 auto;padding:0 20px;text-align:center;font-size:0.85rem;opacity:0.85;}
