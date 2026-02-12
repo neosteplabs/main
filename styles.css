@@ -14,7 +14,7 @@ html, body {
   overscroll-behavior: none;
 }
 
-/* HEADER */
+/* HEADER (GLASS) */
 .navbar {
   position: fixed;
   top: 0;
@@ -75,19 +75,14 @@ html, body {
 #content {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 80px 20px;
 }
 
-/* GLASS PANELS */
-.glass-panel {
-  backdrop-filter: blur(20px);
-  background: rgba(15, 23, 42, 0.45);
-  border-radius: 20px;
-  padding: 50px 30px;
+/* HERO (TRANSPARENT) */
+.hero {
   text-align: center;
 }
 
-/* HERO */
 .hero h1 {
   font-size: 2.8rem;
   margin-bottom: 20px;
@@ -95,7 +90,7 @@ html, body {
 
 .hero p {
   margin-bottom: 30px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .btn {
@@ -108,7 +103,11 @@ html, body {
   font-weight: 600;
 }
 
-/* LOGIN */
+/* LOGIN (TRANSPARENT) */
+.login-panel {
+  text-align: center;
+}
+
 .login-panel input {
   width: 100%;
   padding: 14px;
@@ -124,7 +123,7 @@ html, body {
   cursor: pointer;
 }
 
-/* CATALOG */
+/* CATALOG (TRANSPARENT CARDS) */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -132,10 +131,7 @@ html, body {
 }
 
 .product-card {
-  backdrop-filter: blur(20px);
-  background: rgba(15, 23, 42, 0.45);
   padding: 30px;
-  border-radius: 20px;
   text-align: center;
 }
 
@@ -146,7 +142,7 @@ html, body {
   margin-bottom: 20px;
 }
 
-/* FOOTER */
+/* FOOTER (GLASS) */
 .footer {
   position: fixed;
   bottom: 0;
