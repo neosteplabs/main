@@ -5,18 +5,13 @@
   box-sizing: border-box;
 }
 
-html {
+html, body {
   height: 100%;
-  background: radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
-  overscroll-behavior: none;
-}
-
-body {
-  min-height: 100%;
   font-family: 'Inter', sans-serif;
   color: white;
   background: radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 /* HEADER */
@@ -75,35 +70,45 @@ body {
   right: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 #content {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 60px 20px;
 }
 
-/* HERO GLASS */
-.hero {
-  text-align: center;
-  padding: 80px 20px;
+/* GLASS PANELS */
+.glass-panel {
   backdrop-filter: blur(20px);
   background: rgba(15, 23, 42, 0.45);
   border-radius: 20px;
-}
-
-/* LOGIN PANEL */
-.login-panel {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 40px;
-  backdrop-filter: blur(20px);
-  background: rgba(15, 23, 42, 0.45);
-  border-radius: 20px;
+  padding: 50px 30px;
   text-align: center;
 }
 
+/* HERO */
+.hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  margin-bottom: 30px;
+  opacity: 0.85;
+}
+
+.btn {
+  display: inline-block;
+  padding: 15px 36px;
+  background: white;
+  color: #0f172a;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* LOGIN */
 .login-panel input {
   width: 100%;
   padding: 14px;
@@ -151,7 +156,6 @@ body {
   background: rgba(15, 23, 42, 0.55);
   display: flex;
   align-items: center;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .footer-container {

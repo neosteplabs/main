@@ -19,10 +19,29 @@ function router() {
   const page = window.location.hash.replace("#", "") || "home";
   const user = auth.currentUser;
 
+  // PUBLIC CONTACT PAGE
+  if (page === "contact") {
+    content.innerHTML = `
+      <div class="glass-panel">
+        <h2>Contact NeoStep</h2>
+        <p>Email: <strong>neosteplabs@gmail.com</strong></p>
+        <p style="margin-top:20px;font-size:0.9rem;opacity:0.8;">
+          All products are intended strictly for research use only.
+          Not for human or veterinary use.
+        </p>
+        <p style="margin-top:20px;font-size:0.85rem;opacity:0.7;">
+          By accessing this site you acknowledge you are a qualified researcher.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  // PROTECTED CATALOG
   if (page === "catalog") {
     if (!user) {
       content.innerHTML = `
-        <div class="login-panel">
+        <div class="glass-panel login-panel">
           <h2>Secure Access Required</h2>
           <p>Enter your email to receive a login link.</p>
           <input type="email" id="email" placeholder="Email address">
@@ -59,12 +78,13 @@ function router() {
     return;
   }
 
+  // HOME
   content.innerHTML = `
-    <section class="hero">
+    <div class="glass-panel hero">
       <h1>NeoStep Secure Research Portal</h1>
       <p>Verified laboratory access only.</p>
-      <a href="#catalog" class="btn" style="display:inline-block;padding:15px 36px;background:white;color:#0f172a;border-radius:10px;text-decoration:none;font-weight:600;">Access Catalog</a>
-    </section>
+      <a href="#catalog" class="btn">Access Catalog</a>
+    </div>
   `;
 }
 
