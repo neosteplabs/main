@@ -12,16 +12,16 @@
 
 <body>
 
-<header class="navbar">
+<header class="navbar" id="navbar">
   <nav class="nav-container">
     <a href="#home" class="logo">
-      <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <svg class="logo-icon" viewBox="0 0 100 100">
         <path d="M20 80V20C20 15 25 15 28 20L50 60L72 20C75 15 80 15 80 20V80"
-              stroke="white"
-              stroke-width="10"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"/>
+          stroke="white"
+          stroke-width="10"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
       </svg>
       <span>NeoStep</span>
     </a>
@@ -34,7 +34,6 @@
   </nav>
 </header>
 
-
 <div id="content"></div>
 
 <footer>
@@ -43,12 +42,23 @@
   </div>
 </footer>
 
-<!-- Firebase Compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script src="script.js"></script>
+
+<script>
+  // Navbar scroll effect
+  window.addEventListener("scroll", function() {
+    const navbar = document.getElementById("navbar");
+    if (window.scrollY > 40) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+</script>
 
 </body>
 </html>
