@@ -11,8 +11,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-auth.onAuthStateChanged(user => router());
-
+auth.onAuthStateChanged(() => router());
 window.addEventListener("hashchange", router);
 
 function router() {
@@ -50,8 +49,8 @@ function router() {
       });
 
       content.innerHTML = `
-        <section class="catalog-page">
-          <h1>Research Compound Catalog</h1>
+        <section>
+          <h1 style="text-align:center;margin-bottom:40px;">Research Compound Catalog</h1>
           <div class="product-grid">${html}</div>
         </section>
       `;
@@ -64,7 +63,7 @@ function router() {
     <section class="hero">
       <h1>NeoStep Secure Research Portal</h1>
       <p>Verified laboratory access only.</p>
-      <a href="#catalog" class="btn">Access Catalog</a>
+      <a href="#catalog" class="btn" style="display:inline-block;padding:15px 36px;background:white;color:#0f172a;border-radius:10px;text-decoration:none;font-weight:600;">Access Catalog</a>
     </section>
   `;
 }

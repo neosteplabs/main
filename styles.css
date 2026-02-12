@@ -1,14 +1,22 @@
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
+html {
   height: 100%;
+  background: radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100%;
   font-family: 'Inter', sans-serif;
   color: white;
   background: radial-gradient(circle at 30% 20%, #1e3a8a 0%, #0f172a 60%);
+  overflow-x: hidden;
 }
 
 /* HEADER */
@@ -23,9 +31,10 @@ html, body {
 }
 
 .nav-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 30px;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -49,16 +58,12 @@ html, body {
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 30px;
+  gap: 20px;
 }
 
 .nav-links a {
   text-decoration: none;
   color: rgba(255,255,255,0.85);
-}
-
-.nav-links a:hover {
-  color: white;
 }
 
 /* SCROLL AREA */
@@ -69,49 +74,30 @@ html, body {
   left: 0;
   right: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 #content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 30px;
+  padding: 60px 20px;
 }
 
-/* HERO GLASS PANEL */
+/* HERO GLASS */
 .hero {
   text-align: center;
-  padding: 100px 30px;
+  padding: 80px 20px;
   backdrop-filter: blur(20px);
   background: rgba(15, 23, 42, 0.45);
   border-radius: 20px;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 25px;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  color: rgba(255,255,255,0.85);
-}
-
-.btn {
-  display: inline-block;
-  padding: 15px 36px;
-  background: white;
-  color: #0f172a;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: 600;
 }
 
 /* LOGIN PANEL */
 .login-panel {
   max-width: 500px;
   margin: 0 auto;
-  padding: 50px;
+  padding: 40px;
   backdrop-filter: blur(20px);
   background: rgba(15, 23, 42, 0.45);
   border-radius: 20px;
@@ -120,42 +106,37 @@ html, body {
 
 .login-panel input {
   width: 100%;
-  padding: 15px;
+  padding: 14px;
   margin: 20px 0;
   border-radius: 8px;
   border: none;
 }
 
 .login-panel button {
-  padding: 12px 30px;
+  padding: 12px 28px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
 }
 
 /* CATALOG */
-.catalog-page h1 {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
 }
 
 .product-card {
   backdrop-filter: blur(20px);
   background: rgba(15, 23, 42, 0.45);
-  padding: 40px;
+  padding: 30px;
   border-radius: 20px;
   text-align: center;
 }
 
 .product-image img {
   width: 100%;
-  height: 220px;
+  height: 200px;
   object-fit: contain;
   margin-bottom: 20px;
 }
@@ -170,14 +151,15 @@ html, body {
   background: rgba(15, 23, 42, 0.55);
   display: flex;
   align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .footer-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 30px;
+  padding: 0 20px;
   text-align: center;
-  width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0.8;
 }
