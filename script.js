@@ -80,12 +80,10 @@ function router() {
 
 function sendLink() {
   const email = document.getElementById("email").value;
-
   const actionCodeSettings = {
     url: window.location.origin + window.location.pathname,
     handleCodeInApp: true
   };
-
   auth.sendSignInLinkToEmail(email, actionCodeSettings)
     .then(() => {
       window.localStorage.setItem('emailForSignIn', email);
@@ -95,9 +93,7 @@ function sendLink() {
 
 if (auth.isSignInWithEmailLink(window.location.href)) {
   let email = window.localStorage.getItem('emailForSignIn');
-
   if (!email) {
-    // Silent redirect instead of browser prompt
     window.location.hash = "#catalog";
   } else {
     auth.signInWithEmailLink(email, window.location.href)
