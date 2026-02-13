@@ -24,12 +24,17 @@ function router() {
       <div class="hero">
         <h2>Contact NeoStep</h2>
         <p>Email: <strong>neosteplabs@gmail.com</strong></p>
+        <p style="margin-top:20px;opacity:0.8;">
+          All products are intended strictly for research use only.
+          Not for human or veterinary use.
+        </p>
       </div>
     `;
     return;
   }
 
   if (page === "catalog") {
+
     if (!user) {
       content.innerHTML = `
         <div class="login-panel">
@@ -43,28 +48,38 @@ function router() {
       return;
     }
 
-    db.collection("products").where("visible","==",true).get().then(snapshot => {
-      let html = "";
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        html += `
-          <div class="product-card">
-            <div class="product-image">
-              <img src="${p.image}" alt="${p.code}">
+    db.collection("products")
+      .where("visible","==",true)
+      .get()
+      .then(snapshot => {
+
+        let html = "";
+
+        snapshot.forEach(doc => {
+          const p = doc.data();
+
+          html += `
+            <div class="product-card">
+              <div class="product-image">
+                <img src="${p.image}" alt="${p.code}">
+              </div>
+              <h3>${p.code}</h3>
+              <p>${p.description}</p>
             </div>
-            <h3>${p.code}</h3>
-            <p>${p.description}</p>
-          </div>
+          `;
+        });
+
+        content.innerHTML = `
+          <section>
+            <h1 style="text-align:center;margin-bottom:40px;">
+              Research Compound Catalog
+            </h1>
+            <div class="product-grid">
+              ${html}
+            </div>
+          </section>
         `;
       });
-
-      content.innerHTML = `
-        <section>
-          <h1 style="text-align:center;margin-bottom:40px;">Research Compound Catalog</h1>
-          <div class="product-grid">${html}</div>
-        </section>
-      `;
-    });
 
     return;
   }
@@ -80,19 +95,24 @@ function router() {
 
 function sendLink() {
   const email = document.getElementById("email").value;
+
   const actionCodeSettings = {
     url: window.location.origin + window.location.pathname,
     handleCodeInApp: true
   };
+
   auth.sendSignInLinkToEmail(email, actionCodeSettings)
     .then(() => {
       window.localStorage.setItem('emailForSignIn', email);
-      document.getElementById("message").innerText = "Login link sent. Check your email.";
+      document.getElementById("message").innerText =
+        "Login link sent. Check your email.";
     });
 }
 
 if (auth.isSignInWithEmailLink(window.location.href)) {
+
   let email = window.localStorage.getItem('emailForSignIn');
+
   if (!email) {
     window.location.hash = "#catalog";
   } else {
