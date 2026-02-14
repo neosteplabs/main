@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeoStep Catalog</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Compound Catalog</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header class="navbar">
   <div class="nav-container">
-    <a href="index.html">
+    <a href="index.html" class="logo-link">
       <img src="neostep-logo-header.jpg" class="header-logo" alt="NeoStep Logo">
     </a>
 
-    <nav class="nav-links">
-      <a href="catalog.html" class="active">Catalog</a>
-      <a href="account.html">Account</a>
-    </nav>
+    <ul class="nav-links">
+      <li><a href="catalog.html" class="active">Catalog</a></li>
+
+      <li class="profile" id="profileMenu">
+        <div class="avatar" id="avatarCircle"></div>
+        <span class="profile-email" id="userEmail"></span>
+        <span class="dropdown-arrow">▾</span>
+
+        <div class="profile-dropdown">
+          <a href="account.html">Account</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </li>
+    </ul>
   </div>
 </header>
 
 <main id="content">
 
-  <h1 class="page-title">Research Compound Catalog</h1>
+  <h1>Research Compound Catalog</h1>
 
   <div class="catalog-controls">
     <input type="text" id="searchInput" placeholder="Search compound...">
-    <select id="compoundFilter">
-      <option value="">All Compounds</option>
-      <option value="ns-rt">NS-RT</option>
-    </select>
+
     <select id="mgFilter">
       <option value="">All mg</option>
       <option value="10">10 mg</option>
@@ -42,10 +48,7 @@
 
   <div class="product-grid">
 
-    <div class="product-card"
-         data-name="ns-rt 10mg"
-         data-compound="ns-rt"
-         data-mg="10">
+    <div class="product-card" data-name="ns-rt 10mg" data-mg="10">
       <div class="product-image">
         <img src="images/ns-rt-10.png" alt="NS-RT 10mg">
       </div>
@@ -53,10 +56,7 @@
       <p>Research compound</p>
     </div>
 
-    <div class="product-card"
-         data-name="ns-rt 20mg"
-         data-compound="ns-rt"
-         data-mg="20">
+    <div class="product-card" data-name="ns-rt 20mg" data-mg="20">
       <div class="product-image">
         <img src="images/ns-rt-20.png" alt="NS-RT 20mg">
       </div>
@@ -64,10 +64,7 @@
       <p>Research compound</p>
     </div>
 
-    <div class="product-card"
-         data-name="ns-rt 30mg"
-         data-compound="ns-rt"
-         data-mg="30">
+    <div class="product-card" data-name="ns-rt 30mg" data-mg="30">
       <div class="product-image">
         <img src="images/ns-rt-30.png" alt="NS-RT 30mg">
       </div>
@@ -83,8 +80,7 @@
   © 2026 NeoStep. Research use only. Not for human or veterinary use.
 </footer>
 
-<script src="catalog-filter.js"></script>
 <script type="module" src="script.js"></script>
-
+<script src="catalog-filter.js"></script>
 </body>
 </html>
