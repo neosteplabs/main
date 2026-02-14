@@ -11,24 +11,28 @@
 
 <header class="navbar">
   <div class="nav-container">
-    <a href="index.html">
+
+    <a href="index.html" class="logo-link">
       <img src="neostep-logo-header.jpg" class="header-logo" alt="NeoStep Logo">
     </a>
 
-    <nav class="nav-links">
-      <a href="catalog.html" class="nav-link">Catalog</a>
+    <ul class="nav-links">
+      <li>
+        <a href="catalog.html" id="catalogLink">Catalog</a>
+      </li>
 
-      <div class="profile-menu" id="profileMenu" style="display:none;">
-        <div class="profile-trigger" id="profileTrigger">
-          <span id="userEmail"></span>
-          <span class="caret">▾</span>
-        </div>
-        <div class="dropdown">
+      <li class="profile" id="profileMenu">
+        <div class="avatar" id="avatarCircle"></div>
+        <span class="profile-email" id="userEmail"></span>
+        <span class="dropdown-arrow">▾</span>
+
+        <div class="profile-dropdown">
           <a href="account.html">Account</a>
-          <button id="logoutBtn">Logout</button>
+          <a href="#" id="logoutBtn">Logout</a>
         </div>
-      </div>
-    </nav>
+      </li>
+    </ul>
+
   </div>
 </header>
 
