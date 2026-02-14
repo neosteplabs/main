@@ -1,67 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Research Compound Catalog</title>
-
-  <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoStep Catalog</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="navbar">
   <div class="nav-container">
+
     <a href="index.html">
       <img src="neostep-logo-header.jpg" class="header-logo" alt="NeoStep Logo">
     </a>
 
-    <ul class="nav-links">
-      <li><a href="catalog.html">Catalog</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="catalog.html">Catalog</a></li>
+      </ul>
+
+      <div class="profile-wrapper" id="profileWrapper">
+        <div class="profile-trigger" id="profileTrigger">
+          <span class="user-dot"></span>
+          <span id="userEmail" class="user-email"></span>
+          <span class="caret">▾</span>
+        </div>
+
+        <div class="dropdown-menu" id="dropdownMenu">
+          <div class="dropdown-item" onclick="window.location.href='account.html'">Account</div>
+          <div class="dropdown-item" id="logoutBtn">Logout</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </header>
 
 <main id="content">
+  <h1 style="margin-bottom:40px;">Research Compound Catalog</h1>
 
-  <section class="hero">
-    <h1>Research Compound Catalog</h1>
-  </section>
-
-  <section class="product-grid">
+  <div class="product-grid">
 
     <div class="product-card">
-      <div class="product-image">
-        <img src="images/ns-rt-10.png" alt="NS-RT10">
-      </div>
-      <h3>NS-RT10</h3>
-      <p>Lyophilized research peptide</p>
+      <img src="ns-rt10.jpg">
+      <h3>NS-RT 10mg</h3>
+      <p>Research compound</p>
     </div>
 
     <div class="product-card">
-      <div class="product-image">
-        <img src="images/ns-rt-20.png" alt="NS-RT20">
-      </div>
-      <h3>NS-RT20</h3>
-      <p>Lyophilized research peptide</p>
+      <img src="ns-rt20.jpg">
+      <h3>NS-RT 20mg</h3>
+      <p>Research compound</p>
     </div>
 
     <div class="product-card">
-      <div class="product-image">
-        <img src="images/ns-rt-30.png" alt="NS-RT30">
-      </div>
-      <h3>NS-RT30</h3>
-      <p>Lyophilized research peptide</p>
+      <img src="ns-rt30.jpg">
+      <h3>NS-RT 30mg</h3>
+      <p>Research compound</p>
     </div>
 
-  </section>
-
+  </div>
 </main>
 
 <footer class="footer">
   © 2026 NeoStep. Research use only. Not for human or veterinary use.
 </footer>
 
+<script type="module" src="script.js"></script>
 </body>
 </html>
