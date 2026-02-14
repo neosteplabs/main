@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Research Compound Catalog</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -18,16 +18,8 @@
     <nav class="nav-right">
       <ul class="nav-links">
         <li><a href="catalog.html" class="active">Catalog</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="account.html">Account</a></li>
       </ul>
-
-      <div class="profile">
-        <span id="userEmail"></span>
-        <div class="profile-dropdown">
-          <a href="account.html">Account</a>
-          <button id="logoutBtn">Logout</button>
-        </div>
-      </div>
     </nav>
   </div>
 </header>
@@ -38,7 +30,6 @@
     <h1>Research Compound Catalog</h1>
   </section>
 
-  <!-- Search / Filter -->
   <div class="catalog-filters">
     <input type="text" id="searchInput" placeholder="Search compound..." />
     <select id="mgFilter">
@@ -49,33 +40,53 @@
     </select>
   </div>
 
-  <!-- Product Grid -->
   <section class="product-grid" id="productGrid">
     
-    <!-- NS-RT 10 -->
     <div class="product-card" data-name="NS-RT" data-mg="10">
       <div class="product-image">
-        <img src="images/ns-rt-10.jpg" alt="NS-RT 10mg">
+        <img src="images/ns-rt-10.png" alt="NS-RT 10mg">
       </div>
       <h3>NS-RT 10mg</h3>
       <p>Research compound</p>
     </div>
 
-    <!-- NS-RT 20 -->
     <div class="product-card" data-name="NS-RT" data-mg="20">
       <div class="product-image">
-        <img src="images/ns-rt-20.jpg" alt="NS-RT 20mg">
+        <img src="images/ns-rt-20.png" alt="NS-RT 20mg">
       </div>
       <h3>NS-RT 20mg</h3>
       <p>Research compound</p>
     </div>
 
-    <!-- NS-RT 30 -->
     <div class="product-card" data-name="NS-RT" data-mg="30">
       <div class="product-image">
-        <img src="images/ns-rt-30.jpg" alt="NS-RT 30mg">
+        <img src="images/ns-rt-30.png" alt="NS-RT 30mg">
       </div>
       <h3>NS-RT 30mg</h3>
+      <p>Research compound</p>
+    </div>
+
+    <div class="product-card" data-name="NS-TZ" data-mg="10">
+      <div class="product-image">
+        <img src="images/ns-tz-10.png" alt="NS-TZ 10mg">
+      </div>
+      <h3>NS-TZ 10mg</h3>
+      <p>Research compound</p>
+    </div>
+
+    <div class="product-card" data-name="NS-TZ" data-mg="20">
+      <div class="product-image">
+        <img src="images/ns-tz-20.png" alt="NS-TZ 20mg">
+      </div>
+      <h3>NS-TZ 20mg</h3>
+      <p>Research compound</p>
+    </div>
+
+    <div class="product-card" data-name="NS-TZ" data-mg="30">
+      <div class="product-image">
+        <img src="images/ns-tz-30.png" alt="NS-TZ 30mg">
+      </div>
+      <h3>NS-TZ 30mg</h3>
       <p>Research compound</p>
     </div>
 
@@ -88,7 +99,6 @@
 </footer>
 
 <script>
-/* Search + Filter */
 const searchInput = document.getElementById("searchInput");
 const mgFilter = document.getElementById("mgFilter");
 const cards = document.querySelectorAll(".product-card");
