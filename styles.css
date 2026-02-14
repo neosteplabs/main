@@ -39,7 +39,7 @@ html, body {
 }
 
 .header-logo {
-  height: 70px; /* balanced size */
+  height: auto; /* balanced size */
   width: auto;
   display: block;
 }
