@@ -42,7 +42,7 @@ html, body {
   width: auto;
 }
 
-/* ================= NAV LINKS ================= */
+/* ================= NAVIGATION ================= */
 
 .nav-right {
   display: flex;
@@ -207,7 +207,63 @@ html, body {
   background: #1e40af;
 }
 
-/* ================= CATALOG ================= */
+/* ================= AUTH ================= */
+
+.auth-section {
+  max-width: 400px;
+  margin: auto;
+  text-align: center;
+}
+
+.auth-section input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons button {
+  flex: 1;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+/* ================= CATALOG FILTER ================= */
+
+.catalog-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.catalog-controls input,
+.catalog-controls select {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  background: white;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.catalog-controls input:focus,
+.catalog-controls select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
+
+/* ================= PRODUCT GRID ================= */
 
 .product-grid {
   display: grid;
@@ -261,14 +317,24 @@ html, body {
 
 /* ================= RESPONSIVE ================= */
 
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
 
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .header-logo {
     height: 60px;
+  }
+
+  .nav-container {
+    padding: 10px 20px;
   }
 
 }
