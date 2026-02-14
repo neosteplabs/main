@@ -1,56 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account | NeoStep</title>
+  <title>Account</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="navbar">
   <div class="nav-container">
-
-    <a href="index.html">
-      <img src="neostep-logo-header.jpg" class="header-logo" alt="NeoStep Logo">
+    <a href="index.html" class="logo-link">
+      <img src="neostep-logo-header.jpg" class="header-logo">
     </a>
 
-    <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="catalog.html">Catalog</a></li>
 
-      <ul class="nav-links">
-        <li><a href="catalog.html">Catalog</a></li>
-      </ul>
+      <li class="profile" id="profileMenu">
+        <div class="avatar" id="avatarCircle"></div>
+        <span class="profile-email" id="userEmail"></span>
+        <span class="dropdown-arrow">▾</span>
 
-      <div class="profile-wrapper" id="profileWrapper">
-        <div class="profile-trigger" id="profileTrigger">
-          <span class="user-dot"></span>
-          <span id="userEmail" class="user-email"></span>
-          <span class="caret">▾</span>
+        <div class="profile-dropdown">
+          <a href="account.html" class="active">Account</a>
+          <a href="#" id="logoutBtn">Logout</a>
         </div>
-
-        <div class="dropdown-menu" id="dropdownMenu">
-          <div class="dropdown-item" onclick="window.location.href='account.html'">Account</div>
-          <div class="dropdown-item" id="logoutBtn">Logout</div>
-        </div>
-      </div>
-
-    </div>
-
+      </li>
+    </ul>
   </div>
 </header>
 
 <main id="content">
-
-  <h1 style="margin-bottom:40px;">Account Overview</h1>
-
-  <div class="account-card">
-    <h3>Email</h3>
-    <p id="accountEmail"></p>
-
-    <h3>Account Status</h3>
-    <p>Verified Research Access</p>
-  </div>
-
+  <h1>Account Overview</h1>
+  <p>Email: <span id="accountEmail"></span></p>
+  <p>Status: Verified Research Access</p>
 </main>
 
 <footer class="footer">
