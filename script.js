@@ -3,10 +3,12 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDl54NMHQfCYLd2m10X4J5wjEBsQn9mkcg",
+  authDomain: "neostep-portal-b9ea3.firebaseapp.com",
+  projectId: "neostep-portal-b9ea3",
+  storageBucket: "neostep-portal-b9ea3.firebasestorage.app",
+  messagingSenderId: "312972875460",
+  appId: "1:312972875460:web:b87c32224d0b26b2a09b91"
 };
 
 const app = initializeApp(firebaseConfig);
