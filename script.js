@@ -9,8 +9,6 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* ================= FIREBASE CONFIG ================= */
-
 const firebaseConfig = {
   apiKey: "AIzaSyDl54NMHQfCYLd2m10X4J5wjEBsQn9mkcg",
   authDomain: "neostep-portal-b9ea3.firebaseapp.com",
@@ -22,65 +20,49 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-/* ================= ENABLE PERSISTENT LOGIN ================= */
-
 setPersistence(auth, browserLocalPersistence);
-
-/* ================= DOM ELEMENTS ================= */
 
 const registerBtn = document.getElementById("registerBtn");
 const loginBtn = document.getElementById("loginBtn");
-const message = document.getElementById("auth-message");
-
-/* ================= REGISTER ================= */
+const logoutBtn = document.getElementById("logoutBtn");
+const userEmail = document.getElementById("userEmail");
+const accountEmail = document.getElementById("accountEmail");
+const authSection = document.getElementById("authSection");
 
 if (registerBtn) {
   registerBtn.addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        message.textContent = "Registration Successful";
-      })
-      .catch(error => {
-        message.textContent = error.message;
-      });
+    createUserWithEmailAndPassword(auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
   });
 }
-
-/* ================= LOGIN ================= */
 
 if (loginBtn) {
   loginBtn.addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        window.location.href = "catalog.html";
-      })
-      .catch(error => {
-        message.textContent = error.message;
-      });
+    signInWithEmailAndPassword(auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    ).then(() => window.location.href = "catalog.html");
   });
 }
 
-/* ================= AUTH STATE PROTECTION ================= */
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => window.location.href = "index.html");
+  });
+}
 
 onAuthStateChanged(auth, (user) => {
+  const path = window.location.pathname;
 
-  const currentPage = window.location.pathname;
-
-  // 🔒 Protect catalog page
-  if (!user && currentPage.includes("catalog")) {
+  if (!user && path.includes("catalog")) {
     window.location.href = "index.html";
   }
 
-  // 🔁 Redirect logged-in users away from homepage
-  if (user && (currentPage.endsWith("/") || currentPage.includes("index"))) {
-    window.location.href = "catalog.html";
+  if (user) {
+    if (userEmail) userEmail.textContent = user.email;
+    if (accountEmail) accountEmail.textContent = user.email;
+    if (authSection) authSection.style.display = "none";
   }
-
 });
