@@ -166,3 +166,54 @@ body {
 @media(max-width:768px){
   .product-grid { grid-template-columns:1fr 1fr; }
 }
+.compound-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.compound-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.compound-image {
+  width: 180px;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+.strength-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepper button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stepper button:hover {
+  background: #cbd5e1;
+}
+
+.stepper .qty {
+  min-width: 20px;
+  text-align: center;
+}
