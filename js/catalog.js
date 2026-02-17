@@ -30,9 +30,10 @@ const products = [
 ];
 
 /* =========================
-   Render Products
+   Render Products (LAB STYLE)
 ========================= */
 function renderProducts() {
+
   const container = document.getElementById("productContainer");
   container.innerHTML = "";
 
@@ -41,43 +42,88 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
+    let selection = {}; // Track mg quantities locally
+
+    const mgRows = Object.keys(product.prices).map(mg => {
+
+      selection[mg] = 0;
+
+      return `
+        <div class="mg-row" data-mg="${mg}">
+          <div class="mg-info">
+            <strong>${mg} mg</strong>
+            <span>$${product.prices[mg]}</span>
+          </div>
+
+          <div class="qty-controls">
+            <button class="qty-minus">−</button>
+            <span class="qty-value">0</span>
+            <button class="qty-plus">+</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
     card.innerHTML = `
       <img src="${product.image}" class="product-image">
       <h2>${product.compound}</h2>
-
-      <select class="mgSelect">
-        ${Object.keys(product.prices).map(mg =>
-          `<option value="${mg}">
-            ${mg} mg - $${product.prices[mg]}
-          </option>`
-        ).join("")}
-      </select>
-
-      <input type="number" class="qtyInput" value="1" min="1">
-
-      <button class="btn addToCart">Add to Cart</button>
+      <div class="mg-container">
+        ${mgRows}
+      </div>
+      <button class="btn addSelected">Add Selected to Cart</button>
     `;
 
-    const addBtn = card.querySelector(".addToCart");
-    const mgSelect = card.querySelector(".mgSelect");
-    const qtyInput = card.querySelector(".qtyInput");
+    /* =========================
+       Quantity Logic
+    ========================= */
+    card.querySelectorAll(".mg-row").forEach(row => {
 
-    addBtn.addEventListener("click", async () => {
+      const mg = row.dataset.mg;
+      const minusBtn = row.querySelector(".qty-minus");
+      const plusBtn = row.querySelector(".qty-plus");
+      const qtyDisplay = row.querySelector(".qty-value");
 
-      const mg = mgSelect.value;
-      const qty = parseInt(qtyInput.value);
-      const price = product.prices[mg];
-      const itemId = `${product.compound}-${mg}`;
-
-      await setDoc(
-        doc(db, "users", currentUser.uid, "cart", itemId),
-        {
-          compound: product.compound,
-          mg,
-          quantity: qty,
-          price
+      minusBtn.addEventListener("click", () => {
+        if (selection[mg] > 0) {
+          selection[mg]--;
+          qtyDisplay.textContent = selection[mg];
         }
-      );
+      });
+
+      plusBtn.addEventListener("click", () => {
+        selection[mg]++;
+        qtyDisplay.textContent = selection[mg];
+      });
+
+    });
+
+    /* =========================
+       Add Selected To Cart
+    ========================= */
+    card.querySelector(".addSelected").addEventListener("click", async () => {
+
+      for (const mg in selection) {
+
+        if (selection[mg] > 0) {
+
+          const itemId = `${product.compound}-${mg}`;
+
+          await setDoc(
+            doc(db, "users", currentUser.uid, "cart", itemId),
+            {
+              compound: product.compound,
+              mg,
+              quantity: selection[mg],
+              price: product.prices[mg]
+            }
+          );
+
+        }
+      }
+
+      // Reset local UI quantities
+      card.querySelectorAll(".qty-value").forEach(el => el.textContent = "0");
+      Object.keys(selection).forEach(mg => selection[mg] = 0);
 
     });
 
@@ -108,7 +154,7 @@ function listenToCart(uid) {
 
       const row = document.createElement("div");
       row.innerHTML = `
-        <p>${item.compound} ${item.mg}mg
+        <p>${item.compound} ${item.mg}mg 
         (Qty: ${item.quantity}) - $${item.quantity * item.price}</p>
       `;
       cartItemsDiv.appendChild(row);
