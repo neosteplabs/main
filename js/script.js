@@ -103,7 +103,6 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "catalog.html";
     } catch (error) {
       alert(error.message);
     }
