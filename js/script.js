@@ -139,6 +139,13 @@ if (profileMenu) {
 // ===============================
 onAuthStateChanged(auth, async (user) => {
 
+  if (window.location.pathname.includes("index.html") ||
+    window.location.pathname === "/") {
+
+  window.location.href = "catalog.html";
+  return;
+  }
+
   if (!user) {
     if (!window.location.pathname.includes("index")) {
       window.location.href = "index.html";
