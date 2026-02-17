@@ -13,7 +13,6 @@ import {
   doc,
   setDoc,
   getDoc,
-  updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -58,6 +57,7 @@ const profileMenu = document.getElementById("profileMenu");
 ================================= */
 if (registerBtn) {
   registerBtn.addEventListener("click", async () => {
+
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
@@ -73,7 +73,6 @@ if (registerBtn) {
       const referralFromURL = localStorage.getItem("referralCode");
       const newReferralCode = generateReferralCode();
 
-      // Create user document
       await setDoc(doc(db, "users", uid), {
         email,
         referralCode: newReferralCode,
@@ -83,7 +82,6 @@ if (registerBtn) {
         createdAt: serverTimestamp()
       });
 
-      // Create referral tracking document
       await setDoc(doc(db, "referrals", newReferralCode), {
         ownerUid: uid,
         ownerEmail: email,
@@ -107,6 +105,7 @@ if (registerBtn) {
 ================================= */
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
+
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
@@ -117,7 +116,7 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirect handled by auth listener
+      window.location.href = "catalog.html";
     } catch (error) {
       alert(error.message);
     }
@@ -150,50 +149,36 @@ if (profileMenu) {
 }
 
 /* ===============================
-   AUTH STATE LISTENER (FINAL FIXED)
+   AUTH STATE LISTENER
 ================================= */
 onAuthStateChanged(auth, async (user) => {
 
   const path = window.location.pathname;
 
-  // 🚫 Not logged in
+  // 🔒 Protect private pages
   if (!user) {
-    if (!path.includes("index")) {
+    if (
+      path.includes("catalog") ||
+      path.includes("account") ||
+      path.includes("complete-profile")
+    ) {
       window.location.href = "index.html";
     }
     return;
   }
 
-  // ✅ Logged in AND currently on index page
-  if (path.endsWith("index.html") || path === "/" || path === "") {
-    window.location.href = "catalog.html";
-    return;
-  }
-
-  // Hide login section if present
+  // Hide login form if on index
   if (authSection) {
     authSection.style.display = "none";
   }
 
-  // Show email
+  // Show user email
   if (userEmailDisplay) {
     userEmailDisplay.textContent = user.email;
   }
 
   if (avatarCircle) {
     avatarCircle.textContent = user.email.charAt(0).toUpperCase();
-  }
-
-  // Enforce profile completion
-  const userSnap = await getDoc(doc(db, "users", user.uid));
-
-  if (userSnap.exists()) {
-    const userData = userSnap.data();
-
-    if (!userData.profileComplete &&
-        !path.includes("complete-profile")) {
-      window.location.href = "complete-profile.html";
-    }
   }
 
 });
