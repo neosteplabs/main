@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NeoStep Research Portal</title>
-  <link rel="stylesheet" href="css/styles.css?v=6" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Compound Catalog</title>
+  <link rel="stylesheet" href="css/styles.css?v=7" />
 </head>
 
 <body>
 
 <header class="navbar">
   <div class="nav-container">
+
     <a href="catalog.html">
       <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
     </a>
 
     <ul class="nav-links">
-      <li><a href="catalog.html">Catalog</a></li>
+      <li><a href="catalog.html" class="active">Catalog</a></li>
       <li><a href="account.html">Account</a></li>
 
       <li id="cartIcon" style="position:relative; cursor:pointer;">
@@ -26,43 +27,21 @@
 
       <li id="logoutBtn" style="cursor:pointer;">Logout</li>
     </ul>
+
   </div>
 </header>
 
-<main id="content">
+<main>
+
   <h1>Research Compound Catalog</h1>
+
   <div id="productContainer" class="product-grid"></div>
+
 </main>
 
-<!-- AUTH OVERLAY -->
-<div id="authOverlay" class="auth-overlay">
-
-  <div class="auth-modal">
-
-    <div class="auth-tabs">
-      <button id="loginTab" class="active">Login</button>
-      <button id="registerTab">Register</button>
-    </div>
-
-    <div class="auth-form">
-
-      <input type="email" id="email" placeholder="Email">
-      <input type="password" id="password" placeholder="Password">
-
-      <button id="authSubmit" class="btn full-width">Login</button>
-
-      <p id="auth-message"></p>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- CART OVERLAY -->
+<!-- CART DRAWER -->
 <div id="cartOverlay" class="cart-overlay"></div>
 
-<!-- CART DRAWER -->
 <div id="cartDrawer" class="cart-drawer">
   <h2>Your Cart</h2>
   <div id="cartItems"></div>
@@ -74,7 +53,6 @@
   © 2026 NeoStep. Research use only.
 </footer>
 
-<script type="module" src="js/script.js"></script>
 <script type="module" src="js/catalog.js"></script>
 
 </body>
