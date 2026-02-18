@@ -8,9 +8,7 @@ import {
   collection,
   doc,
   setDoc,
-  deleteDoc,
-  onSnapshot,
-  getDoc
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
@@ -36,83 +34,54 @@ const products = [
 ========================= */
 function renderProducts() {
   const container = document.getElementById("productContainer");
+  if (!container) return;
+
   container.innerHTML = "";
 
   products.forEach(product => {
 
     const card = document.createElement("div");
-    card.className = "compound-card";
+    card.className = "product-card";
 
     card.innerHTML = `
-      <img src="${product.image}" class="compound-image">
+      <img src="${product.image}" class="product-image">
       <h2>${product.compound}</h2>
-      <div class="strength-container"></div>
-      <button class="btn addSelected">Add Selected to Cart</button>
+
+      <select class="mgSelect">
+        ${Object.keys(product.prices).map(mg =>
+          `<option value="${mg}">
+            ${mg} mg - $${product.prices[mg]}
+          </option>`
+        ).join("")}
+      </select>
+
+      <input type="number" class="qtyInput" value="1" min="1">
+
+      <button class="btn addToCart">Add to Cart</button>
     `;
 
-    const strengthContainer = card.querySelector(".strength-container");
-
-    Object.keys(product.prices).forEach(mg => {
-
-      const row = document.createElement("div");
-      row.className = "strength-row";
-
-      row.innerHTML = `
-        <span>${mg} mg</span>
-        <span>$${product.prices[mg]}</span>
-        <div class="stepper">
-          <button class="minus">–</button>
-          <span class="qty" data-mg="${mg}">0</span>
-          <button class="plus">+</button>
-        </div>
-      `;
-
-      const minus = row.querySelector(".minus");
-      const plus = row.querySelector(".plus");
-      const qtyDisplay = row.querySelector(".qty");
-
-      plus.addEventListener("click", () => {
-        qtyDisplay.textContent = parseInt(qtyDisplay.textContent) + 1;
-      });
-
-      minus.addEventListener("click", () => {
-        const current = parseInt(qtyDisplay.textContent);
-        if (current > 0) {
-          qtyDisplay.textContent = current - 1;
-        }
-      });
-
-      strengthContainer.appendChild(row);
-    });
-
-    const addBtn = card.querySelector(".addSelected");
+    const addBtn = card.querySelector(".addToCart");
+    const mgSelect = card.querySelector(".mgSelect");
+    const qtyInput = card.querySelector(".qtyInput");
 
     addBtn.addEventListener("click", async () => {
 
-      const qtyElements = card.querySelectorAll(".qty");
+      if (!currentUser) return;
 
-      for (let el of qtyElements) {
-        const mg = el.dataset.mg;
-        const qty = parseInt(el.textContent);
+      const mg = mgSelect.value;
+      const qty = parseInt(qtyInput.value);
+      const price = product.prices[mg];
+      const itemId = `${product.compound}-${mg}`;
 
-        if (qty > 0) {
-
-          const price = product.prices[mg];
-          const itemId = `${product.compound}-${mg}`;
-
-          await setDoc(
-            doc(db, "users", currentUser.uid, "cart", itemId),
-            {
-              compound: product.compound,
-              mg,
-              quantity: qty,
-              price
-            }
-          );
-
-          el.textContent = "0";
+      await setDoc(
+        doc(db, "users", currentUser.uid, "cart", itemId),
+        {
+          compound: product.compound,
+          mg,
+          quantity: qty,
+          price
         }
-      }
+      );
 
     });
 
@@ -129,42 +98,31 @@ function listenToCart(uid) {
 
   onSnapshot(cartRef, snapshot => {
 
+    const cartItemsDiv = document.getElementById("cartItems");
+    const badge = document.getElementById("cartBadge");
+    const totalDisplay = document.getElementById("cartTotal");
+
+    if (!cartItemsDiv || !badge || !totalDisplay) return;
+
     let totalQty = 0;
     let totalPrice = 0;
 
-    const cartItemsDiv = document.getElementById("cartItems");
     cartItemsDiv.innerHTML = "";
 
     snapshot.forEach(docSnap => {
 
       const item = docSnap.data();
-      const itemId = docSnap.id;
-
       totalQty += item.quantity;
       totalPrice += item.quantity * item.price;
 
       const row = document.createElement("div");
-      row.className = "cart-row";
-
       row.innerHTML = `
-        <div>
-          <strong>${item.compound} ${item.mg}mg</strong><br>
-          Qty: ${item.quantity}
-        </div>
-        <div>
-          $${item.quantity * item.price}
-          <button class="removeBtn">✕</button>
-        </div>
+        <p>${item.compound} ${item.mg}mg
+        (Qty: ${item.quantity}) - $${item.quantity * item.price}</p>
       `;
-
-      row.querySelector(".removeBtn").addEventListener("click", async () => {
-        await deleteDoc(doc(db, "users", uid, "cart", itemId));
-      });
-
       cartItemsDiv.appendChild(row);
-    });
 
-    const badge = document.getElementById("cartBadge");
+    });
 
     if (totalQty > 0) {
       badge.style.display = "inline-block";
@@ -173,8 +131,7 @@ function listenToCart(uid) {
       badge.style.display = "none";
     }
 
-    document.getElementById("cartTotal").textContent =
-      `Total: $${totalPrice}`;
+    totalDisplay.textContent = `Total: $${totalPrice}`;
   });
 }
 
@@ -185,34 +142,27 @@ const cartIcon = document.getElementById("cartIcon");
 const drawer = document.getElementById("cartDrawer");
 
 cartIcon?.addEventListener("click", () => {
-  drawer.classList.toggle("open");
+  drawer?.classList.toggle("open");
 });
 
 document.addEventListener("click", e => {
-  if (!drawer.contains(e.target) && !cartIcon.contains(e.target)) {
-    drawer.classList.remove("open");
+  if (!drawer?.contains(e.target) && !cartIcon?.contains(e.target)) {
+    drawer?.classList.remove("open");
   }
 });
 
 /* =========================
-   Auth Guard + Approval Check
+   Auth Load (NO REDIRECTS HERE)
 ========================= */
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, user => {
 
   if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-
-  if (!snap.exists() || snap.data().approved !== true) {
-    window.location.href = "index.html";
+    // Let script.js handle redirect logic
     return;
   }
 
   currentUser = user;
   renderProducts();
   listenToCart(user.uid);
+
 });
