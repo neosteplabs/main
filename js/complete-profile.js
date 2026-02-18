@@ -6,17 +6,13 @@ import {
 
 import {
   doc,
-  updateDoc
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-/* ===============================
-   AUTH CHECK
-================================= */
 onAuthStateChanged(auth, (user) => {
 
   if (!user) {
-    // Not logged in
     window.location.href = "index.html";
     return;
   }
@@ -37,19 +33,23 @@ onAuthStateChanged(auth, (user) => {
 
     try {
 
-      await updateDoc(doc(db, "users", user.uid), {
-        name,
-        company,
-        phone,
-        address,
-        profileComplete: true
-      });
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          name,
+          company,
+          phone,
+          address,
+          profileComplete: true
+        },
+        { merge: true } // <-- THIS IS THE FIX
+      );
 
       window.location.href = "catalog.html";
 
     } catch (error) {
       console.error(error);
-      alert("Error saving profile. Check console.");
+      alert(error.message);
     }
 
   });
