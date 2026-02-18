@@ -3,141 +3,135 @@ import { auth, db } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
   sendEmailVerification,
-  setPersistence,
-  browserLocalPersistence
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   doc,
   setDoc,
+  getDocs,
+  collection,
+  query,
+  where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-setPersistence(auth, browserLocalPersistence);
+/* =========================
+   Elements
+========================= */
 
-/* ===============================
-   DOM
-================================= */
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 const registerBtn = document.getElementById("registerBtn");
 const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const authSection = document.getElementById("authSection");
-const modal = document.getElementById("verificationModal");
-const resendBtn = document.getElementById("resendVerification");
+const message = document.getElementById("auth-message");
 
-/* ===============================
-   REGISTER
-================================= */
-registerBtn?.addEventListener("click", async () => {
+/* =========================
+   Generate Unique Referral Code
+========================= */
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+async function generateReferralCode() {
+  let code;
+  let exists = true;
 
-  if (!email || !password) {
-    alert("Please enter email and password.");
-    return;
+  while (exists) {
+    const random = Math.floor(1000 + Math.random() * 9000);
+    code = `NS${random}`;
+
+    const q = query(
+      collection(db, "users"),
+      where("referralCode", "==", code)
+    );
+
+    const snapshot = await getDocs(q);
+    exists = !snapshot.empty;
   }
 
-  try {
-
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-
-    await sendEmailVerification(userCred.user);
-
-    await signOut(auth);
-
-    showVerificationModal(email);
-
-  } catch (error) {
-    alert(error.message);
-  }
-
-});
-
-/* ===============================
-   LOGIN
-================================= */
-loginBtn?.addEventListener("click", async () => {
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert(error.message);
-  }
-
-});
-
-/* ===============================
-   LOGOUT
-================================= */
-logoutBtn?.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "index.html";
-});
-
-/* ===============================
-   Verification Modal Logic
-================================= */
-function showVerificationModal(email) {
-
-  modal.style.display = "flex";
-  modal.querySelector(".modal-email").textContent = email;
-
+  return code;
 }
 
-resendBtn?.addEventListener("click", async () => {
+/* =========================
+   Register
+========================= */
 
-  const user = auth.currentUser;
-  if (!user) return;
+registerBtn?.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
-  await sendEmailVerification(user);
-  alert("Verification email resent.");
+  if (!email || !password) {
+    message.textContent = "Please enter email and password.";
+    return;
+  }
 
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const user = userCredential.user;
+
+    // Generate referral code
+    const referralCode = await generateReferralCode();
+
+    // Create Firestore user document
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      referralCode,
+      profileComplete: false,
+      createdAt: serverTimestamp()
+    });
+
+    // Send email verification
+    await sendEmailVerification(user);
+
+    alert("Verification email sent. Please verify before logging in.");
+
+    await auth.signOut();
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
 });
 
-/* ===============================
-   Auth State Watcher
-================================= */
-onAuthStateChanged(auth, async (user) => {
+/* =========================
+   Login
+========================= */
 
-  const path = window.location.pathname;
+loginBtn?.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
-  if (!user) {
-    if (!path.includes("index")) {
-      window.location.href = "index.html";
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      alert("Please verify your email before accessing the portal.");
+      await auth.signOut();
+      return;
     }
-    return;
+
+    window.location.href = "catalog.html";
+
+  } catch (error) {
+    message.textContent = error.message;
   }
+});
 
-  // EMAIL NOT VERIFIED
-  if (!user.emailVerified) {
+/* =========================
+   Auto Redirect if Logged In
+========================= */
 
-    showVerificationModal(user.email);
-
-    const interval = setInterval(async () => {
-
-      await user.reload();
-
-      if (user.emailVerified) {
-        clearInterval(interval);
-        modal.style.display = "none";
-        window.location.href = "complete-profile.html";
-      }
-
-    }, 5000);
-
-    return;
-  }
-
-  // VERIFIED USER
-  if (path.includes("index")) {
+onAuthStateChanged(auth, (user) => {
+  if (user && user.emailVerified) {
     window.location.href = "catalog.html";
   }
-
 });
