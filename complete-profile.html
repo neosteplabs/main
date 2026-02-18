@@ -1,75 +1,41 @@
-import { auth, db } from "./firebase-config.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Profile | NeoStep</title>
+  <link rel="stylesheet" href="css/styles.css?v=7" />
+</head>
+<body>
 
-const saveBtn = document.getElementById("saveProfile");
+<header class="navbar">
+  <div class="nav-container">
+    <a href="catalog.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    </a>
+  </div>
+</header>
 
-/* =========================
-   Generate NS Referral Code
-========================= */
-function generateReferralCode() {
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `NS${random}`;
-}
+<main>
 
-/* =========================
-   Auth Guard
-========================= */
-onAuthStateChanged(auth, async (user) => {
+<h1>Complete Your Profile</h1>
 
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+<input id="address1" placeholder="Address Line 1">
+<input id="address2" placeholder="Address Line 2">
+<input id="city" placeholder="City">
+<input id="state" placeholder="State">
+<input id="zip" placeholder="ZIP Code">
+<input id="phone" placeholder="Phone">
+<input id="referralInput" placeholder="Referral Code (Optional)">
 
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+<button id="saveProfile">Save Profile</button>
 
-  saveBtn?.addEventListener("click", async () => {
+</main>
 
-    const fullName = document.getElementById("fullName").value;
-    const phone = document.getElementById("phone").value;
+<footer class="footer">
+  © 2026 NeoStep. Research use only.
+</footer>
 
-    const address1 = document.getElementById("address1").value;
-    const address2 = document.getElementById("address2").value;
-    const city = document.getElementById("city").value;
-    const state = document.getElementById("state").value;
-    const zip = document.getElementById("zip").value;
-
-    const referralInput = document.getElementById("referralCode")?.value || "";
-
-    if (!fullName || !phone || !address1 || !city || !state || !zip) {
-      alert("Please complete all required fields.");
-      return;
-    }
-
-    let referralCodeToSave;
-
-    // If user already has a referral code, keep it
-    if (userSnap.exists() && userSnap.data().referralCode) {
-      referralCodeToSave = userSnap.data().referralCode;
-    } else {
-      referralCodeToSave = generateReferralCode();
-    }
-
-    const profileData = {
-      fullName,
-      phone,
-      address1,
-      address2,
-      city,
-      state,
-      zip,
-      referralUsed: referralInput || null,
-      referralCode: referralCodeToSave,
-      profileComplete: true,
-      createdAt: userSnap.exists() ? userSnap.data().createdAt : serverTimestamp()
-    };
-
-    await setDoc(userRef, profileData, { merge: true });
-
-    window.location.href = "catalog.html";
-
-  });
-
-});
+<script type="module" src="js/complete-profile.js"></script>
+</body>
+</html>
