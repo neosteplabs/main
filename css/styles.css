@@ -69,21 +69,23 @@ button:hover,
 }
 
 /* =========================
-   NAVBAR (LOCKED STANDARD)
+   NAVBAR (STANDARDIZED)
 ========================= */
 .navbar {
   position: fixed;
   top: 20px;
-  left: 12px;
-  right: 12px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: calc(100% - 40px);
+  max-width: 1250px;
 
   background: rgba(255,255,255,0.98);
-  backdrop-filter: blur(14px);
-
+  backdrop-filter: blur(16px);
   border-radius: 28px;
-  padding: 18px 28px;
+  padding: 18px 35px;
 
-  box-shadow: 0 14px 40px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 45px rgba(0,0,0,0.06);
   z-index: 1000;
 }
 
@@ -103,7 +105,7 @@ button:hover,
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 35px;
 }
 
 .nav-links li {
@@ -161,7 +163,7 @@ button:hover,
 }
 
 /* =========================
-   HERO
+   HERO (INDEX ONLY)
 ========================= */
 .hero {
   text-align: left;
@@ -181,9 +183,9 @@ button:hover,
 
 .product-card {
   background: white;
-  padding: 28px;
-  border-radius: 22px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+  padding: 30px;
+  border-radius: 24px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.05);
   text-align: center;
   transition: 0.25s ease;
   border: 1px solid #edf2f7;
@@ -191,18 +193,18 @@ button:hover,
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
 }
 
 .product-image {
   width: 100%;
-  max-width: 190px;
+  max-width: 200px;
   margin: 0 auto 20px auto;
   display: block;
 }
 
 .product-card select {
-  max-width: 190px;
+  max-width: 200px;
   margin: 0 auto 15px auto;
   display: block;
 }
@@ -238,9 +240,9 @@ button:hover,
   width: 100%;
   height: 70%;
   background: white;
-  border-top-left-radius: 26px;
-  border-top-right-radius: 26px;
-  box-shadow: 0 -15px 40px rgba(0,0,0,0.15);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  box-shadow: 0 -18px 45px rgba(0,0,0,0.15);
   transition: 0.3s ease;
   padding: 35px;
   overflow-y: auto;
@@ -285,8 +287,8 @@ button:hover,
 .order-card {
   background: white;
   padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.05);
   margin-bottom: 25px;
   border: 1px solid #edf2f7;
 }
