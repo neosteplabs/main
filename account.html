@@ -1,44 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Account</title>
+  <title>My Account</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header class="navbar">
   <div class="nav-container">
-    <a href="index.html" class="logo-link">
+    <a href="catalog.html">
       <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
     </a>
-
-    <ul class="nav-links">
-      <li><a href="catalog.html">Catalog</a></li>
-
-      <li class="profile" id="profileMenu">
-        <div class="avatar" id="avatarCircle"></div>
-        <span class="profile-email" id="userEmail"></span>
-        <span class="dropdown-arrow">▾</span>
-
-        <div class="profile-dropdown">
-          <a href="account.html" class="active">Account</a>
-          <a href="#" id="logoutBtn">Logout</a>
-        </div>
-      </li>
-    </ul>
   </div>
 </header>
 
-<main id="content">
-  <h1>Account Overview</h1>
-  <p>Email: <span id="accountEmail"></span></p>
-  <p>Status: Verified Research Access</p>
+<main>
+
+  <h1>My Account</h1>
+
+  <h2>Order History</h2>
+  <div id="orderHistory"></div>
+
 </main>
 
-<footer class="footer">
-  © 2026 NeoStep. Research use only. Not for human or veterinary use.
-</footer>
+<script type="module">
 
-<script type="module" src="js/script.js"></script>
+import { auth, db } from "./js/firebase-config.js";
+
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+onAuthStateChanged(auth, async user => {
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const ordersRef = collection(db, "orders");
+  const q = query(
+    ordersRef,
+    where("userId", "==", user.uid),
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  const container = document.getElementById("orderHistory");
+
+  if (snapshot.empty) {
+    container.innerHTML = "<p>No orders yet.</p>";
+    return;
+  }
+
+  let html = "";
+
+  snapshot.forEach(docSnap => {
+
+    const order = docSnap.data();
+    const date = order.createdAt?.toDate().toLocaleString() || "Pending";
+
+    html += `
+      <div class="order-card">
+        <h3>${order.orderId}</h3>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Date:</strong> ${date}</p>
+        <p><strong>Total:</strong> $${order.total}</p>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+});
+
+</script>
+
 </body>
 </html>
