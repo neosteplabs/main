@@ -1,56 +1,51 @@
-import { auth, db } from "./firebase-config.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Profile | NeoStep</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
 
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+<body>
 
-import {
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<header class="navbar">
+  <div class="nav-container">
+    <a href="index.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo" alt="NeoStep Logo">
+    </a>
+  </div>
+</header>
 
-/* =========================
-   Protect Page
-========================= */
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  }
-});
+<main class="profile-container">
 
-/* =========================
-   Save Profile
-========================= */
-const saveBtn = document.getElementById("saveProfileBtn");
+  <h1>Complete Your Profile</h1>
 
-saveBtn?.addEventListener("click", async () => {
+  <div class="profile-form">
 
-  const name = document.getElementById("name")?.value.trim();
-  const company = document.getElementById("company")?.value.trim();
-  const phone = document.getElementById("phone")?.value.trim();
-  const address = document.getElementById("address")?.value.trim();
+    <label>Full Name *</label>
+    <input type="text" id="name" placeholder="Full Name" required>
 
-  if (!name || !phone || !address) {
-    alert("Please complete all required fields.");
-    return;
-  }
+    <label>Company / Lab Name</label>
+    <input type="text" id="company" placeholder="Company / Lab Name">
 
-  try {
-    const user = auth.currentUser;
+    <label>Phone Number *</label>
+    <input type="text" id="phone" placeholder="Phone Number" required>
 
-    await updateDoc(doc(db, "users", user.uid), {
-      name,
-      company: company || "",
-      phone,
-      address,
-      profileComplete: true
-    });
+    <label>Shipping Address *</label>
+    <textarea id="address" placeholder="Full Shipping Address" rows="4" required></textarea>
 
-    window.location.href = "catalog.html";
+    <button id="saveProfileBtn" class="btn">Save Profile</button>
 
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
+  </div>
 
-});
+</main>
+
+<footer class="footer">
+  © 2026 NeoStep. Research use only. Not for human or veterinary use.
+</footer>
+
+<script type="module" src="js/complete-profile.js"></script>
+
+</body>
+</html>
