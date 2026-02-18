@@ -8,15 +8,16 @@ import {
   collection,
   doc,
   setDoc,
-  getDocs,
+  getDoc,
+  updateDoc,
   deleteDoc,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
 
 /* =========================
-   Product Definitions
+   PRODUCT DATA
 ========================= */
 const products = [
   {
@@ -32,23 +33,10 @@ const products = [
 ];
 
 /* =========================
-   Generate Professional Order ID
-========================= */
-function generateOrderId() {
-  const now = new Date();
-  const datePart =
-    now.getFullYear().toString() +
-    String(now.getMonth() + 1).padStart(2, "0") +
-    String(now.getDate()).padStart(2, "0");
-
-  const randomPart = Math.floor(1000 + Math.random() * 9000);
-  return `NS-${datePart}-${randomPart}`;
-}
-
-/* =========================
-   Render Products
+   RENDER PRODUCTS
 ========================= */
 function renderProducts() {
+
   const container = document.getElementById("productContainer");
   container.innerHTML = "";
 
@@ -69,33 +57,61 @@ function renderProducts() {
         ).join("")}
       </select>
 
-      <input type="number" class="qtyInput" value="1" min="1">
-
       <button class="btn addToCart">Add to Cart</button>
     `;
 
     const addBtn = card.querySelector(".addToCart");
     const mgSelect = card.querySelector(".mgSelect");
-    const qtyInput = card.querySelector(".qtyInput");
 
     addBtn.addEventListener("click", async () => {
 
+      if (!currentUser) {
+        alert("You must be logged in.");
+        return;
+      }
+
       const mg = mgSelect.value;
-      const qty = parseInt(qtyInput.value);
       const price = product.prices[mg];
       const itemId = `${product.compound}-${mg}`;
 
-      await setDoc(
-        doc(db, "users", currentUser.uid, "cart", itemId),
-        {
-          compound: product.compound,
-          mg,
-          quantity: qty,
-          price
-        }
-      );
+      try {
 
-      alert("Added to cart");
+        const cartDocRef = doc(
+          db,
+          "users",
+          currentUser.uid,
+          "cart",
+          itemId
+        );
+
+        const existing = await getDoc(cartDocRef);
+
+        if (existing.exists()) {
+
+          const currentQty = existing.data().quantity;
+
+          await updateDoc(cartDocRef, {
+            quantity: currentQty + 1
+          });
+
+        } else {
+
+          await setDoc(cartDocRef, {
+            compound: product.compound,
+            mg,
+            quantity: 1,
+            price
+          });
+
+        }
+
+        alert("Added to cart");
+
+      } catch (err) {
+        console.error("Cart error:", err);
+        alert("Error adding to cart.");
+      }
+
     });
 
     container.appendChild(card);
@@ -103,58 +119,118 @@ function renderProducts() {
 }
 
 /* =========================
-   Submit Order
+   CART LISTENER
 ========================= */
-async function submitOrder() {
+function listenToCart(uid) {
 
-  const cartSnapshot = await getDocs(
-    collection(db, "users", currentUser.uid, "cart")
-  );
+  const cartRef = collection(db, "users", uid, "cart");
 
-  if (cartSnapshot.empty) {
-    alert("Your cart is empty.");
-    return;
-  }
+  onSnapshot(cartRef, snapshot => {
 
-  const items = [];
-  let total = 0;
+    const cartItemsDiv = document.getElementById("cartItems");
+    const badge = document.getElementById("cartBadge");
 
-  cartSnapshot.forEach(docSnap => {
-    const data = docSnap.data();
-    items.push(data);
-    total += data.quantity * data.price;
+    cartItemsDiv.innerHTML = "";
+
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    snapshot.forEach(docSnap => {
+
+      const item = docSnap.data();
+      const docId = docSnap.id;
+
+      totalQty += item.quantity;
+      totalPrice += item.quantity * item.price;
+
+      const row = document.createElement("div");
+      row.className = "cart-row";
+
+      row.innerHTML = `
+        <div class="cart-left">
+          <strong>${item.compound} ${item.mg}mg</strong>
+          <div class="cart-price">$${item.price} each</div>
+        </div>
+
+        <div class="cart-right">
+          <button class="qty-btn minus">-</button>
+          <span class="qty">${item.quantity}</span>
+          <button class="qty-btn plus">+</button>
+          <button class="remove-btn">×</button>
+        </div>
+      `;
+
+      const minusBtn = row.querySelector(".minus");
+      const plusBtn = row.querySelector(".plus");
+      const removeBtn = row.querySelector(".remove-btn");
+
+      minusBtn.addEventListener("click", async () => {
+
+        if (item.quantity > 1) {
+          await updateDoc(
+            doc(db, "users", uid, "cart", docId),
+            { quantity: item.quantity - 1 }
+          );
+        } else {
+          await deleteDoc(
+            doc(db, "users", uid, "cart", docId)
+          );
+        }
+
+      });
+
+      plusBtn.addEventListener("click", async () => {
+
+        await updateDoc(
+          doc(db, "users", uid, "cart", docId),
+          { quantity: item.quantity + 1 }
+        );
+
+      });
+
+      removeBtn.addEventListener("click", async () => {
+
+        await deleteDoc(
+          doc(db, "users", uid, "cart", docId)
+        );
+
+      });
+
+      cartItemsDiv.appendChild(row);
+    });
+
+    /* Update badge */
+    if (totalQty > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = totalQty;
+    } else {
+      badge.style.display = "none";
+    }
+
+    document.getElementById("cartTotal").textContent =
+      `Total: $${totalPrice}`;
+
   });
-
-  const orderId = generateOrderId();
-
-  await setDoc(doc(db, "orders", orderId), {
-    orderId,
-    userId: currentUser.uid,
-    email: currentUser.email,
-    items,
-    total,
-    status: "pending",
-    createdAt: serverTimestamp()
-  });
-
-  // Clear cart
-  const deletePromises = [];
-  cartSnapshot.forEach(docSnap => {
-    deletePromises.push(deleteDoc(docSnap.ref));
-  });
-  await Promise.all(deletePromises);
-
-  window.location.href = `order-confirmation.html?orderId=${orderId}`;
 }
 
 /* =========================
-   Attach Checkout Button
+   DRAWER TOGGLE
 ========================= */
-const checkoutBtn = document.getElementById("checkoutBtn");
-checkoutBtn?.addEventListener("click", submitOrder);
+const cartIcon = document.getElementById("cartIcon");
+const drawer = document.getElementById("cartDrawer");
+
+cartIcon?.addEventListener("click", () => {
+  drawer.classList.toggle("open");
+});
+
+document.addEventListener("click", e => {
+  if (!drawer.contains(e.target) && !cartIcon.contains(e.target)) {
+    drawer.classList.remove("open");
+  }
+});
 
 /* =========================
-   Auth Guard
+   AUTH GUARD
 ========================= */
 onAuthStateChanged(auth, user => {
 
@@ -164,5 +240,8 @@ onAuthStateChanged(auth, user => {
   }
 
   currentUser = user;
+
   renderProducts();
+  listenToCart(user.uid);
+
 });
