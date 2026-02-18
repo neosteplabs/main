@@ -1,7 +1,8 @@
 import { auth, db } from "./firebase-config.js";
 
 import {
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
@@ -14,11 +15,31 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* =========================
+   DOM ELEMENTS
+========================= */
+
+const logoutBtn = document.getElementById("logoutBtn");
+const cartIcon = document.getElementById("cartIcon");
+const drawer = document.getElementById("cartDrawer");
+const overlay = document.getElementById("cartOverlay");
+const checkoutBtn = document.getElementById("checkoutBtn");
+
 let currentUser = null;
+
+/* =========================
+   Logout
+========================= */
+
+logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
 
 /* =========================
    Product Definitions
 ========================= */
+
 const products = [
   {
     compound: "NS-RT",
@@ -35,9 +56,11 @@ const products = [
 /* =========================
    Render Products
 ========================= */
-function renderProducts() {
 
+function renderProducts() {
   const container = document.getElementById("productContainer");
+  if (!container) return;
+
   container.innerHTML = "";
 
   products.forEach(product => {
@@ -68,6 +91,8 @@ function renderProducts() {
 
     addBtn.addEventListener("click", async () => {
 
+      if (!currentUser) return;
+
       const mg = mgSelect.value;
       const qty = parseInt(qtyInput.value);
       const price = product.prices[mg];
@@ -84,7 +109,6 @@ function renderProducts() {
       );
 
       alert("Added to cart");
-
     });
 
     container.appendChild(card);
@@ -92,8 +116,9 @@ function renderProducts() {
 }
 
 /* =========================
-   Cart Listener
+   Cart Listener (Realtime)
 ========================= */
+
 function listenToCart(uid) {
 
   const cartRef = collection(db, "users", uid, "cart");
@@ -104,6 +129,8 @@ function listenToCart(uid) {
     let totalPrice = 0;
 
     const cartItemsDiv = document.getElementById("cartItems");
+    if (!cartItemsDiv) return;
+
     cartItemsDiv.innerHTML = "";
 
     snapshot.forEach(docSnap => {
@@ -124,27 +151,33 @@ function listenToCart(uid) {
       `;
 
       cartItemsDiv.appendChild(row);
-
     });
 
     const badge = document.getElementById("cartBadge");
 
-    if (totalQty > 0) {
-      badge.style.display = "inline-block";
-      badge.textContent = totalQty;
-    } else {
-      badge.style.display = "none";
+    if (badge) {
+      if (totalQty > 0) {
+        badge.style.display = "inline-block";
+        badge.textContent = totalQty;
+      } else {
+        badge.style.display = "none";
+      }
     }
 
-    document.getElementById("cartTotal").textContent =
-      `Total: $${totalPrice}`;
+    const totalElement = document.getElementById("cartTotal");
+    if (totalElement) {
+      totalElement.textContent = `Total: $${totalPrice}`;
+    }
   });
 }
 
 /* =========================
    Submit Order
 ========================= */
+
 async function submitOrder() {
+
+  if (!currentUser) return;
 
   const cartRef = collection(db, "users", currentUser.uid, "cart");
   const cartSnap = await getDocs(cartRef);
@@ -180,7 +213,7 @@ async function submitOrder() {
     orderData
   );
 
-  // Save to global orders (admin view)
+  // Save to global admin orders
   await setDoc(
     doc(db, "orders", orderId),
     orderData
@@ -193,30 +226,30 @@ async function submitOrder() {
 
   alert("Order submitted successfully.");
 
+  drawer?.classList.remove("open");
+  overlay?.classList.remove("open");
 }
 
-document.getElementById("checkoutBtn")?.addEventListener("click", submitOrder);
+checkoutBtn?.addEventListener("click", submitOrder);
 
 /* =========================
    Drawer Toggle
 ========================= */
-const cartIcon = document.getElementById("cartIcon");
-const drawer = document.getElementById("cartDrawer");
-const overlay = document.getElementById("cartOverlay");
 
 cartIcon?.addEventListener("click", () => {
-  drawer.classList.toggle("open");
-  overlay.classList.toggle("open");
+  drawer?.classList.toggle("open");
+  overlay?.classList.toggle("open");
 });
 
 overlay?.addEventListener("click", () => {
-  drawer.classList.remove("open");
-  overlay.classList.remove("open");
+  drawer?.classList.remove("open");
+  overlay?.classList.remove("open");
 });
 
 /* =========================
    Auth Guard
 ========================= */
+
 onAuthStateChanged(auth, user => {
 
   if (!user) {
@@ -225,7 +258,7 @@ onAuthStateChanged(auth, user => {
   }
 
   currentUser = user;
+
   renderProducts();
   listenToCart(user.uid);
-
 });
