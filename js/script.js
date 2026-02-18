@@ -22,12 +22,14 @@ import {
 setPersistence(auth, browserLocalPersistence);
 
 /* ===============================
-   Capture Referral From URL
+   DOM Elements
 ================================= */
-const params = new URLSearchParams(window.location.search);
-if (params.get("ref")) {
-  localStorage.setItem("referralCode", params.get("ref"));
-}
+const registerBtn = document.getElementById("registerBtn");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const authSection = document.getElementById("authSection");
+const userEmailDisplay = document.getElementById("userEmail");
+const avatarCircle = document.getElementById("avatarCircle");
 
 /* ===============================
    Generate Referral Code
@@ -40,17 +42,6 @@ function generateReferralCode() {
   }
   return code;
 }
-
-/* ===============================
-   DOM Elements
-================================= */
-const registerBtn = document.getElementById("registerBtn");
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const authSection = document.getElementById("authSection");
-const userEmailDisplay = document.getElementById("userEmail");
-const avatarCircle = document.getElementById("avatarCircle");
-const profileMenu = document.getElementById("profileMenu");
 
 /* ===============================
    REGISTER
@@ -70,27 +61,16 @@ if (registerBtn) {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCred.user.uid;
 
-      const referralFromURL = localStorage.getItem("referralCode");
       const newReferralCode = generateReferralCode();
 
       await setDoc(doc(db, "users", uid), {
         email,
         referralCode: newReferralCode,
-        referredBy: referralFromURL || null,
+        referredBy: null,
         referralQualified: false,
         profileComplete: false,
         createdAt: serverTimestamp()
       });
-
-      await setDoc(doc(db, "referrals", newReferralCode), {
-        ownerUid: uid,
-        ownerEmail: email,
-        totalReferrals: 0,
-        referredUsers: [],
-        createdAt: serverTimestamp()
-      });
-
-      localStorage.removeItem("referralCode");
 
       window.location.href = "complete-profile.html";
 
@@ -116,7 +96,8 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "catalog.html";
+      // DO NOT redirect here
+      // Let auth listener handle redirect safely
     } catch (error) {
       alert(error.message);
     }
@@ -134,28 +115,13 @@ if (logoutBtn) {
 }
 
 /* ===============================
-   Profile Dropdown Toggle
-================================= */
-if (profileMenu) {
-  profileMenu.addEventListener("click", () => {
-    profileMenu.classList.toggle("open");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!profileMenu.contains(e.target)) {
-      profileMenu.classList.remove("open");
-    }
-  });
-}
-
-/* ===============================
-   AUTH STATE LISTENER
+   AUTH STATE LISTENER (MASTER CONTROL)
 ================================= */
 onAuthStateChanged(auth, async (user) => {
 
   const path = window.location.pathname;
 
-  // 🔒 Protect private pages
+  // 🔒 Not logged in
   if (!user) {
     if (
       path.includes("catalog") ||
@@ -167,7 +133,9 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // Hide login form if on index
+  // 👤 Logged in
+
+  // Hide login section if on index
   if (authSection) {
     authSection.style.display = "none";
   }
@@ -179,6 +147,27 @@ onAuthStateChanged(auth, async (user) => {
 
   if (avatarCircle) {
     avatarCircle.textContent = user.email.charAt(0).toUpperCase();
+  }
+
+  // Check profile completion
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+
+    // 🚨 Profile not complete
+    if (!userData.profileComplete &&
+        !path.includes("complete-profile")) {
+      window.location.href = "complete-profile.html";
+      return;
+    }
+
+    // ✅ Profile complete
+    if (userData.profileComplete &&
+        (path.includes("index") || path === "/" || path.endsWith("/docs/"))) {
+      window.location.href = "catalog.html";
+      return;
+    }
   }
 
 });
