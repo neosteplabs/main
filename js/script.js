@@ -1,4 +1,6 @@
 import { auth } from "./firebase-config.js";
+import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { auth } from "./firebase-config.js";
 
 import {
   createUserWithEmailAndPassword,
@@ -136,6 +138,20 @@ onAuthStateChanged(auth, (user) => {
 
   if (authSection) {
     authSection.style.display = "none";
+  }
+
+/* =========================
+   Global Logout Handler
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
   }
 
 });
