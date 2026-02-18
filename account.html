@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Account | NeoStep</title>
-  <link rel="stylesheet" href="css/styles.css?v=7" />
+  <link rel="stylesheet" href="css/styles.css?v=8" />
 </head>
 <body>
 
@@ -19,12 +19,12 @@
       <li><a href="catalog.html">Catalog</a></li>
       <li><a href="account.html" class="active">Account</a></li>
 
-      <li id="cartIcon" style="position:relative; cursor:pointer;">
+      <li id="cartIcon" class="cart-wrapper">
         🛒
         <span id="cartBadge">0</span>
       </li>
 
-      <li id="logoutBtn" style="cursor:pointer;">Logout</li>
+      <li id="logoutBtn">Logout</li>
     </ul>
 
   </div>
@@ -32,28 +32,33 @@
 
 <main>
 
-<h1>My Account</h1>
+  <h1>My Account</h1>
 
-<div class="account-tabs">
-  <button id="profileTabBtn" class="tab-btn active">Profile</button>
-  <button id="ordersTabBtn" class="tab-btn">Order History</button>
-</div>
+  <!-- TAB SWITCHER -->
+  <div class="account-tabs">
+    <button id="profileTabBtn" class="active">Profile</button>
+    <button id="ordersTabBtn">Order History</button>
+  </div>
 
-<div id="profileSection">
-  <h2>Profile Information</h2>
+  <!-- PROFILE SECTION -->
+  <div id="profileSection">
 
-  <p><strong>Email:</strong> <span id="emailDisplay">-</span></p>
-  <p><strong>Phone:</strong> <span id="phoneDisplay">-</span></p>
-  <p><strong>Address:</strong> <span id="addressDisplay">-</span></p>
-  <p><strong>Referral Code:</strong> <span id="referralDisplay">-</span></p>
+    <h2>Profile Information</h2>
 
-  <a href="complete-profile.html" class="btn">Edit Profile</a>
-</div>
+    <p><strong>Email:</strong> <span id="emailDisplay">-</span></p>
+    <p><strong>Phone:</strong> <span id="phoneDisplay">-</span></p>
+    <p><strong>Address:</strong> <span id="addressDisplay">-</span></p>
+    <p><strong>Referral Code:</strong> <span id="referralDisplay">-</span></p>
 
-<div id="ordersSection" style="display:none;">
-  <h2>Order History</h2>
-  <div id="ordersContainer"></div>
-</div>
+    <a href="complete-profile.html" class="btn">Edit Profile</a>
+
+  </div>
+
+  <!-- ORDERS SECTION -->
+  <div id="ordersSection" style="display:none;">
+    <h2>Order History</h2>
+    <div id="ordersContainer"></div>
+  </div>
 
 </main>
 
