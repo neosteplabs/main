@@ -9,6 +9,8 @@ import {
   collection,
   doc,
   setDoc,
+  updateDoc,
+  deleteDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -37,7 +39,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
 });
 
 /* =========================
-   PRODUCT DATA
+   PRODUCTS
 ========================= */
 const products = [
   {
@@ -52,11 +54,7 @@ const products = [
   }
 ];
 
-/* =========================
-   RENDER PRODUCTS
-========================= */
 function renderProducts() {
-
   const container = document.getElementById("productContainer");
   container.innerHTML = "";
 
@@ -86,7 +84,6 @@ function renderProducts() {
     const qtyInput = card.querySelector(".qtyInput");
 
     addBtn.addEventListener("click", async () => {
-
       const mg = mgSelect.value;
       const qty = parseInt(qtyInput.value);
       const price = product.prices[mg];
@@ -94,14 +91,8 @@ function renderProducts() {
 
       await setDoc(
         doc(db, "users", currentUser.uid, "cart", itemId),
-        {
-          compound: product.compound,
-          mg,
-          quantity: qty,
-          price
-        }
+        { compound: product.compound, mg, quantity: qty, price }
       );
-
     });
 
     container.appendChild(card);
@@ -109,7 +100,7 @@ function renderProducts() {
 }
 
 /* =========================
-   CART LISTENER
+   CART
 ========================= */
 function listenToCart(uid) {
 
@@ -135,45 +126,80 @@ function listenToCart(uid) {
       row.innerHTML = `
         <div>
           ${item.compound} ${item.mg}mg
-          <br>Qty: ${item.quantity}
+          <div class="mini-qty">
+            <button class="decrease">-</button>
+            <span>${item.quantity}</span>
+            <button class="increase">+</button>
+          </div>
         </div>
         <div>$${item.quantity * item.price}</div>
       `;
 
+      const decrease = row.querySelector(".decrease");
+      const increase = row.querySelector(".increase");
+
+      decrease.addEventListener("click", async () => {
+        if (item.quantity > 1) {
+          await updateDoc(docSnap.ref, {
+            quantity: item.quantity - 1
+          });
+        } else {
+          await deleteDoc(docSnap.ref);
+        }
+      });
+
+      increase.addEventListener("click", async () => {
+        await updateDoc(docSnap.ref, {
+          quantity: item.quantity + 1
+        });
+      });
+
       cartItemsDiv.appendChild(row);
     });
 
+    document.getElementById("cartTotal").textContent =
+      `Total: $${totalPrice}`;
+
     const badge = document.getElementById("cartBadge");
+    const mobileCount = document.getElementById("mobileCartCount");
 
     if (totalQty > 0) {
       badge.style.display = "inline-block";
       badge.textContent = totalQty;
+      mobileCount.textContent = totalQty;
     } else {
       badge.style.display = "none";
+      mobileCount.textContent = "0";
     }
 
-    document.getElementById("cartTotal").textContent =
-      `Total: $${totalPrice}`;
   });
 }
 
 /* =========================
-   CART DROPDOWN TOGGLE
+   DROPDOWN TOGGLE
 ========================= */
 const cartIcon = document.getElementById("cartIcon");
 const cartDropdown = document.getElementById("cartDropdown");
+const mobileBubble = document.getElementById("mobileCartBubble");
 
-cartIcon?.addEventListener("click", (e) => {
+cartIcon?.addEventListener("click", e => {
   e.stopPropagation();
   cartDropdown.classList.toggle("open");
 });
 
-document.addEventListener("click", () => {
-  cartDropdown.classList.remove("open");
+mobileBubble?.addEventListener("click", e => {
+  e.stopPropagation();
+  cartDropdown.classList.toggle("open");
+});
+
+document.addEventListener("click", e => {
+  if (!cartDropdown.contains(e.target) && !cartIcon.contains(e.target)) {
+    cartDropdown.classList.remove("open");
+  }
 });
 
 /* =========================
-   CHECKOUT PAGE REDIRECT
+   CHECKOUT
 ========================= */
 document.getElementById("goCheckout")?.addEventListener("click", () => {
   window.location.href = "checkout.html";
