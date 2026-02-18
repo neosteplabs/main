@@ -240,3 +240,10 @@ main {
   font-size: 0.85rem;
   color: #64748b;
 }
+.order-card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
