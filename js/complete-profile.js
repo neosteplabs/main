@@ -1,92 +1,98 @@
 import { auth, db } from "./firebase-config.js";
 
 import {
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   doc,
-  setDoc,
+  updateDoc,
+  getDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const saveBtn = document.getElementById("saveProfile");
+const logoutBtn = document.getElementById("logoutBtn");
 
-onAuthStateChanged(auth, (user) => {
+const hasReferralCheckbox = document.getElementById("hasReferral");
+const referralInput = document.getElementById("referralCode");
+const referralError = document.getElementById("referralError");
+
+/* =========================
+   Logout
+========================= */
+logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
+
+/* =========================
+   Toggle Referral Field
+========================= */
+hasReferralCheckbox?.addEventListener("change", () => {
+  referralInput.style.display = hasReferralCheckbox.checked ? "block" : "none";
+});
+
+/* =========================
+   Auth Guard
+========================= */
+onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
+
+  if (snap.exists()) {
+    const data = snap.data();
+
+    // Auto-fill if returning
+    document.getElementById("address1").value = data.address1 || "";
+    document.getElementById("address2").value = data.address2 || "";
+    document.getElementById("city").value = data.city || "";
+    document.getElementById("state").value = data.state || "";
+    document.getElementById("zip").value = data.zip || "";
+    document.getElementById("phone").value = data.phone || "";
+
+    if (data.referredBy) {
+      hasReferralCheckbox.checked = true;
+      referralInput.style.display = "block";
+      referralInput.value = data.referredBy;
+    }
+  }
+
   saveBtn?.addEventListener("click", async () => {
 
-    try {
+    const address1 = document.getElementById("address1").value.trim();
+    const address2 = document.getElementById("address2").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value;
+    const zip = document.getElementById("zip").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const referralCode = referralInput.value.trim();
 
-      // =========================
-      // Collect Form Values
-      // =========================
-
-      const fullName  = document.getElementById("fullName")?.value.trim();
-      const company   = document.getElementById("company")?.value.trim();
-      const phone     = document.getElementById("phone")?.value.trim();
-
-      const address1  = document.getElementById("address1")?.value.trim();
-      const address2  = document.getElementById("address2")?.value.trim();
-      const city      = document.getElementById("city")?.value.trim();
-      const state     = document.getElementById("state")?.value;
-      const zip       = document.getElementById("zip")?.value.trim();
-
-      const referral  = document.getElementById("referral")?.value.trim();
-
-      // =========================
-      // Basic Validation
-      // =========================
-
-      if (!fullName || !phone || !address1 || !city || !state || !zip) {
-        alert("Please complete all required fields.");
-        return;
-      }
-
-      // =========================
-      // Save To Firestore
-      // =========================
-
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          uid: user.uid,
-          email: user.email,
-
-          fullName,
-          company: company || null,
-          phone,
-
-          address1,
-          address2: address2 || null,
-          city,
-          state,
-          zip,
-
-          referral: referral || null,
-
-          profileComplete: true,
-          updatedAt: serverTimestamp(),
-          createdAt: serverTimestamp()
-        },
-        { merge: true }
-      );
-
-      // =========================
-      // Redirect To Catalog
-      // =========================
-
-      window.location.href = "catalog.html";
-
-    } catch (error) {
-      console.error("Profile save error:", error);
-      alert("Something went wrong. Please try again.");
+    if (!address1 || !city || !state || !zip || !phone) {
+      alert("Please complete all required fields.");
+      return;
     }
+
+    await updateDoc(userRef, {
+      address1,
+      address2,
+      city,
+      state,
+      zip,
+      phone,
+      referredBy: referralCode || null,
+      profileComplete: true,
+      profileCompletedAt: serverTimestamp()
+    });
+
+    window.location.href = "catalog.html";
 
   });
 
