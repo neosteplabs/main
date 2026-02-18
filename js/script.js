@@ -3,133 +3,141 @@ import { auth, db } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendEmailVerification,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   doc,
   setDoc,
-  getDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* =========================
-   ELEMENTS
-========================= */
+setPersistence(auth, browserLocalPersistence);
 
+/* ===============================
+   DOM
+================================= */
 const registerBtn = document.getElementById("registerBtn");
 const loginBtn = document.getElementById("loginBtn");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const message = document.getElementById("auth-message");
+const logoutBtn = document.getElementById("logoutBtn");
+const authSection = document.getElementById("authSection");
+const modal = document.getElementById("verificationModal");
+const resendBtn = document.getElementById("resendVerification");
 
-/* =========================
+/* ===============================
    REGISTER
-========================= */
-
+================================= */
 registerBtn?.addEventListener("click", async () => {
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   if (!email || !password) {
-    message.textContent = "Please enter email and password.";
+    alert("Please enter email and password.");
     return;
   }
 
   try {
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Send verification email
-    await sendEmailVerification(user);
-
-    // Create Firestore user document
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      profileComplete: false,
-      createdAt: serverTimestamp()
-    });
+    await sendEmailVerification(userCred.user);
 
     await signOut(auth);
 
-    message.textContent = "Verification email sent. Please verify before logging in.";
+    showVerificationModal(email);
 
   } catch (error) {
-    message.textContent = error.message;
+    alert(error.message);
   }
 
 });
 
-/* =========================
+/* ===============================
    LOGIN
-========================= */
-
+================================= */
 loginBtn?.addEventListener("click", async () => {
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    message.textContent = "Please enter email and password.";
-    return;
-  }
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   try {
-
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Enforce verification
-    if (!user.emailVerified) {
-      await signOut(auth);
-      message.textContent = "Please verify your email before logging in.";
-      return;
-    }
-
-    // Check profile completion
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-
-    if (!userDoc.exists() || !userDoc.data().profileComplete) {
-      window.location.href = "complete-profile.html";
-    } else {
-      window.location.href = "catalog.html";
-    }
-
+    await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    message.textContent = error.message;
+    alert(error.message);
   }
 
 });
 
-/* =========================
-   GLOBAL VERIFICATION GUARD
-   (Applies to entire site except index.html)
-========================= */
+/* ===============================
+   LOGOUT
+================================= */
+logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
 
+/* ===============================
+   Verification Modal Logic
+================================= */
+function showVerificationModal(email) {
+
+  modal.style.display = "flex";
+  modal.querySelector(".modal-email").textContent = email;
+
+}
+
+resendBtn?.addEventListener("click", async () => {
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await sendEmailVerification(user);
+  alert("Verification email resent.");
+
+});
+
+/* ===============================
+   Auth State Watcher
+================================= */
 onAuthStateChanged(auth, async (user) => {
 
-  const currentPage = window.location.pathname;
+  const path = window.location.pathname;
 
-  // If on index page, allow
-  if (currentPage.includes("index.html") || currentPage === "/") {
-    return;
-  }
-
-  // Not logged in
   if (!user) {
-    window.location.href = "index.html";
+    if (!path.includes("index")) {
+      window.location.href = "index.html";
+    }
     return;
   }
 
-  // Not verified
+  // EMAIL NOT VERIFIED
   if (!user.emailVerified) {
-    await signOut(auth);
-    window.location.href = "index.html";
+
+    showVerificationModal(user.email);
+
+    const interval = setInterval(async () => {
+
+      await user.reload();
+
+      if (user.emailVerified) {
+        clearInterval(interval);
+        modal.style.display = "none";
+        window.location.href = "complete-profile.html";
+      }
+
+    }, 5000);
+
     return;
+  }
+
+  // VERIFIED USER
+  if (path.includes("index")) {
+    window.location.href = "catalog.html";
   }
 
 });
