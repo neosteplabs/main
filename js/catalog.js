@@ -1,5 +1,4 @@
 import { auth, db } from "./firebase-config.js";
-
 import {
   onAuthStateChanged,
   signOut
@@ -10,31 +9,46 @@ import {
   doc,
   setDoc,
   getDocs,
-  getDoc,
   deleteDoc,
   onSnapshot,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+let currentUser = null;
+let authChecked = false;
+
 /* =========================
-   DOM ELEMENTS
+   AUTH GUARD (SAFE)
+========================= */
+onAuthStateChanged(auth, user => {
+
+  if (!authChecked) {
+    authChecked = true;
+
+    if (!user) {
+      window.location.replace("index.html");
+      return;
+    }
+
+    currentUser = user;
+    renderProducts();
+    listenToCart(user.uid);
+  }
+
+});
+
+/* =========================
+   Logout
 ========================= */
 const logoutBtn = document.getElementById("logoutBtn");
-const cartIcon = document.getElementById("cartIcon");
-const drawer = document.getElementById("cartDrawer");
-const overlay = document.getElementById("cartOverlay");
-const checkoutBtn = document.getElementById("checkoutBtn");
 
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "index.html";
+  window.location.replace("index.html");
 });
 
-let currentUser = null;
-let profileComplete = false;
-
 /* =========================
-   PRODUCT DEFINITIONS
+   Product Data
 ========================= */
 const products = [
   {
@@ -50,11 +64,13 @@ const products = [
 ];
 
 /* =========================
-   RENDER PRODUCTS
+   Render Products
 ========================= */
 function renderProducts() {
 
   const container = document.getElementById("productContainer");
+  if (!container) return;
+
   container.innerHTML = "";
 
   products.forEach(product => {
@@ -85,12 +101,6 @@ function renderProducts() {
 
     addBtn.addEventListener("click", async () => {
 
-      if (!profileComplete) {
-        alert("Please complete your profile before placing orders.");
-        window.location.href = "complete-profile.html";
-        return;
-      }
-
       const mg = mgSelect.value;
       const qty = parseInt(qtyInput.value);
       const price = product.prices[mg];
@@ -107,6 +117,7 @@ function renderProducts() {
       );
 
       alert("Added to cart");
+
     });
 
     container.appendChild(card);
@@ -114,7 +125,7 @@ function renderProducts() {
 }
 
 /* =========================
-   CART LISTENER
+   Cart Listener
 ========================= */
 function listenToCart(uid) {
 
@@ -126,6 +137,8 @@ function listenToCart(uid) {
     let totalPrice = 0;
 
     const cartItemsDiv = document.getElementById("cartItems");
+    if (!cartItemsDiv) return;
+
     cartItemsDiv.innerHTML = "";
 
     snapshot.forEach(docSnap => {
@@ -151,108 +164,19 @@ function listenToCart(uid) {
 
     const badge = document.getElementById("cartBadge");
 
-    if (totalQty > 0) {
-      badge.style.display = "inline-block";
-      badge.textContent = totalQty;
-    } else {
-      badge.style.display = "none";
+    if (badge) {
+      if (totalQty > 0) {
+        badge.style.display = "inline-block";
+        badge.textContent = totalQty;
+      } else {
+        badge.style.display = "none";
+      }
     }
 
-    document.getElementById("cartTotal").textContent =
-      `Total: $${totalPrice}`;
+    const totalEl = document.getElementById("cartTotal");
+    if (totalEl) {
+      totalEl.textContent = `Total: $${totalPrice}`;
+    }
+
   });
 }
-
-/* =========================
-   SUBMIT ORDER
-========================= */
-async function submitOrder() {
-
-  if (!profileComplete) {
-    alert("Please complete your profile before placing orders.");
-    window.location.href = "complete-profile.html";
-    return;
-  }
-
-  const cartRef = collection(db, "users", currentUser.uid, "cart");
-  const cartSnap = await getDocs(cartRef);
-
-  if (cartSnap.empty) {
-    alert("Cart is empty.");
-    return;
-  }
-
-  let orderItems = [];
-  let total = 0;
-
-  cartSnap.forEach(docSnap => {
-    const data = docSnap.data();
-    orderItems.push(data);
-    total += data.quantity * data.price;
-  });
-
-  const orderId = crypto.randomUUID();
-
-  const orderData = {
-    userId: currentUser.uid,
-    email: currentUser.email,
-    items: orderItems,
-    total,
-    status: "Pending",
-    createdAt: serverTimestamp()
-  };
-
-  await setDoc(
-    doc(db, "users", currentUser.uid, "orders", orderId),
-    orderData
-  );
-
-  await setDoc(
-    doc(db, "orders", orderId),
-    orderData
-  );
-
-  for (const docSnap of cartSnap.docs) {
-    await deleteDoc(docSnap.ref);
-  }
-
-  alert("Order submitted successfully.");
-}
-
-checkoutBtn?.addEventListener("click", submitOrder);
-
-/* =========================
-   DRAWER TOGGLE
-========================= */
-cartIcon?.addEventListener("click", () => {
-  drawer.classList.toggle("open");
-  overlay.classList.toggle("open");
-});
-
-overlay?.addEventListener("click", () => {
-  drawer.classList.remove("open");
-  overlay.classList.remove("open");
-});
-
-/* =========================
-   AUTH + PROFILE CHECK
-========================= */
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  currentUser = user;
-
-  const userSnap = await getDoc(doc(db, "users", user.uid));
-
-  if (userSnap.exists()) {
-    profileComplete = userSnap.data().profileComplete === true;
-  }
-
-  renderProducts();
-  listenToCart(user.uid);
-
-});
