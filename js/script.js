@@ -96,8 +96,7 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // DO NOT redirect here
-      // Let auth listener handle redirect safely
+      // Do NOT redirect here
     } catch (error) {
       alert(error.message);
     }
@@ -115,32 +114,29 @@ if (logoutBtn) {
 }
 
 /* ===============================
-   AUTH STATE LISTENER (MASTER CONTROL)
+   AUTH STATE CONTROLLER
 ================================= */
 onAuthStateChanged(auth, async (user) => {
 
-  const path = window.location.pathname;
+  const page = window.location.pathname.split("/").pop();
+  // page will be:
+  // index.html
+  // catalog.html
+  // complete-profile.html
+  // "" (for /docs/)
 
-  // 🔒 Not logged in
   if (!user) {
-    if (
-      path.includes("catalog") ||
-      path.includes("account") ||
-      path.includes("complete-profile")
-    ) {
+    if (page === "catalog.html" || page === "complete-profile.html") {
       window.location.href = "index.html";
     }
     return;
   }
 
-  // 👤 Logged in
-
-  // Hide login section if on index
+  // Hide login section if exists
   if (authSection) {
     authSection.style.display = "none";
   }
 
-  // Show user email
   if (userEmailDisplay) {
     userEmailDisplay.textContent = user.email;
   }
@@ -149,25 +145,23 @@ onAuthStateChanged(auth, async (user) => {
     avatarCircle.textContent = user.email.charAt(0).toUpperCase();
   }
 
-  // Check profile completion
   const userSnap = await getDoc(doc(db, "users", user.uid));
 
-  if (userSnap.exists()) {
-    const userData = userSnap.data();
+  if (!userSnap.exists()) return;
 
-    // 🚨 Profile not complete
-    if (!userData.profileComplete &&
-        !path.includes("complete-profile")) {
+  const userData = userSnap.data();
+
+  // 🚨 If profile not complete
+  if (!userData.profileComplete) {
+    if (page !== "complete-profile.html") {
       window.location.href = "complete-profile.html";
-      return;
     }
+    return;
+  }
 
-    // ✅ Profile complete
-    if (userData.profileComplete &&
-        (path.includes("index") || path === "/" || path.endsWith("/docs/"))) {
-      window.location.href = "catalog.html";
-      return;
-    }
+  // ✅ If profile complete and on index
+  if (page === "index.html" || page === "") {
+    window.location.href = "catalog.html";
   }
 
 });
