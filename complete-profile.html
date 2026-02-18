@@ -1,24 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Complete Profile</title>
-<link rel="stylesheet" href="css/styles.css">
-<script type="module" src="complete-profile.js"></script>
-</head>
-<body>
+import { auth, db } from "./firebase-config.js";
 
-<main>
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-<h2>Complete Your Profile</h2>
+import {
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<input type="text" id="fullName" placeholder="Full Name">
-<input type="text" id="company" placeholder="Company / Lab Name">
-<input type="text" id="phone" placeholder="Phone">
-<textarea id="shippingAddress" placeholder="Default Shipping Address"></textarea>
+/* =========================
+   Protect Page
+========================= */
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  }
+});
 
-<button id="saveProfile">Save Profile</button>
+/* =========================
+   Save Profile
+========================= */
+const saveBtn = document.getElementById("saveProfileBtn");
 
-</main>
+saveBtn?.addEventListener("click", async () => {
 
-</body>
-</html>
+  const name = document.getElementById("name")?.value.trim();
+  const company = document.getElementById("company")?.value.trim();
+  const phone = document.getElementById("phone")?.value.trim();
+  const address = document.getElementById("address")?.value.trim();
+
+  if (!name || !phone || !address) {
+    alert("Please complete all required fields.");
+    return;
+  }
+
+  try {
+    const user = auth.currentUser;
+
+    await updateDoc(doc(db, "users", user.uid), {
+      name,
+      company: company || "",
+      phone,
+      address,
+      profileComplete: true
+    });
+
+    window.location.href = "catalog.html";
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+
+});
