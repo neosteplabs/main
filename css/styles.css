@@ -221,6 +221,44 @@ button:hover,
 }
 
 /* =========================
+   CART DROPDOWN
+========================= */
+.cart-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.cart-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  padding: 20px;
+  display: none;
+  z-index: 2000;
+}
+
+.cart-dropdown.open {
+  display: block;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.cart-total {
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* =========================
    MOBILE
 ========================= */
 @media (max-width: 768px) {
