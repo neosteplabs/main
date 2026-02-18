@@ -8,13 +8,16 @@ import {
   collection,
   doc,
   setDoc,
-  onSnapshot
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
 
 /* =========================
-   Product Definitions
+   PRODUCT DEFINITIONS
 ========================= */
 const products = [
   {
@@ -30,10 +33,9 @@ const products = [
 ];
 
 /* =========================
-   Render Products
+   RENDER PRODUCTS
 ========================= */
 function renderProducts() {
-
   const container = document.getElementById("productContainer");
   container.innerHTML = "";
 
@@ -42,108 +44,55 @@ function renderProducts() {
     const card = document.createElement("div");
     card.className = "product-card";
 
-    let quantityState = {};
-
-    const mgRows = Object.keys(product.prices).map(mg => {
-
-      quantityState[mg] = 0;
-
-      return `
-        <div class="mg-row" data-mg="${mg}">
-          <span class="mg-label">${mg} mg</span>
-          <span class="mg-price">$${product.prices[mg]}</span>
-
-          <div class="qty-controls">
-            <button class="qty-btn minus">−</button>
-            <span class="qty-value" id="qty-${product.compound}-${mg}">0</span>
-            <button class="qty-btn plus">+</button>
-          </div>
-        </div>
-      `;
-
-    }).join("");
-
     card.innerHTML = `
       <img src="${product.image}" class="product-image">
+
       <h2>${product.compound}</h2>
 
-      <div class="mg-container">
-        ${mgRows}
-      </div>
+      <select class="mgSelect">
+        ${Object.keys(product.prices).map(mg =>
+          `<option value="${mg}">
+            ${mg} mg - $${product.prices[mg]}
+          </option>`
+        ).join("")}
+      </select>
 
-      <button class="btn addSelected">Add Selected to Cart</button>
+      <button class="btn addToCart">Add to Cart</button>
     `;
 
-    /* =========================
-       Quantity Controls
-    ========================= */
+    const addBtn = card.querySelector(".addToCart");
+    const mgSelect = card.querySelector(".mgSelect");
 
-    card.querySelectorAll(".mg-row").forEach(row => {
+    addBtn.addEventListener("click", async () => {
 
-      const mg = row.dataset.mg;
-      const minusBtn = row.querySelector(".minus");
-      const plusBtn = row.querySelector(".plus");
-      const qtyDisplay = row.querySelector(".qty-value");
+      const mg = mgSelect.value;
+      const price = product.prices[mg];
+      const itemId = `${product.compound}-${mg}`;
 
-      minusBtn.addEventListener("click", () => {
-        if (quantityState[mg] > 0) {
-          quantityState[mg]--;
-          qtyDisplay.textContent = quantityState[mg];
-        }
-      });
+      const itemRef = doc(db, "users", currentUser.uid, "cart", itemId);
+      const existing = await getDoc(itemRef);
 
-      plusBtn.addEventListener("click", () => {
-        quantityState[mg]++;
-        qtyDisplay.textContent = quantityState[mg];
-      });
-
-    });
-
-    /* =========================
-       Add Selected to Cart
-    ========================= */
-
-    card.querySelector(".addSelected").addEventListener("click", async () => {
-
-      for (let mg in quantityState) {
-
-        const qty = quantityState[mg];
-
-        if (qty > 0) {
-
-          const price = product.prices[mg];
-          const itemId = `${product.compound}-${mg}`;
-
-          await setDoc(
-            doc(db, "users", currentUser.uid, "cart", itemId),
-            {
-              compound: product.compound,
-              mg,
-              quantity: qty,
-              price
-            }
-          );
-        }
+      if (existing.exists()) {
+        await updateDoc(itemRef, {
+          quantity: existing.data().quantity + 1
+        });
+      } else {
+        await setDoc(itemRef, {
+          compound: product.compound,
+          mg,
+          quantity: 1,
+          price
+        });
       }
-
-      // Reset quantities visually
-      card.querySelectorAll(".qty-value").forEach(el => {
-        el.textContent = "0";
-      });
-
-      Object.keys(quantityState).forEach(mg => {
-        quantityState[mg] = 0;
-      });
 
     });
 
     container.appendChild(card);
-
   });
 }
 
 /* =========================
-   Cart Listener
+   CART LISTENER (REALTIME)
 ========================= */
 function listenToCart(uid) {
 
@@ -151,29 +100,67 @@ function listenToCart(uid) {
 
   onSnapshot(cartRef, snapshot => {
 
+    const cartItemsDiv = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
+    const badge = document.getElementById("cartBadge");
+
+    cartItemsDiv.innerHTML = "";
+
     let totalQty = 0;
     let totalPrice = 0;
-
-    const cartItemsDiv = document.getElementById("cartItems");
-    cartItemsDiv.innerHTML = "";
 
     snapshot.forEach(docSnap => {
 
       const item = docSnap.data();
+      const id = docSnap.id;
+
       totalQty += item.quantity;
       totalPrice += item.quantity * item.price;
 
       const row = document.createElement("div");
-      row.innerHTML = `
-        <p>${item.compound} ${item.mg}mg
-        (Qty: ${item.quantity}) - $${item.quantity * item.price}</p>
-      `;
-      cartItemsDiv.appendChild(row);
+      row.className = "cart-item";
 
+      row.innerHTML = `
+        <div class="cart-item-info">
+          <strong>${item.compound} ${item.mg}mg</strong>
+          <span class="cart-price">$${item.price} each</span>
+        </div>
+
+        <div class="cart-controls">
+          <button class="cart-btn decrease">−</button>
+          <span>${item.quantity}</span>
+          <button class="cart-btn increase">+</button>
+          <button class="remove-btn">✕</button>
+        </div>
+      `;
+
+      // Increase
+      row.querySelector(".increase").addEventListener("click", async () => {
+        await updateDoc(doc(db, "users", uid, "cart", id), {
+          quantity: item.quantity + 1
+        });
+      });
+
+      // Decrease
+      row.querySelector(".decrease").addEventListener("click", async () => {
+        if (item.quantity > 1) {
+          await updateDoc(doc(db, "users", uid, "cart", id), {
+            quantity: item.quantity - 1
+          });
+        } else {
+          await deleteDoc(doc(db, "users", uid, "cart", id));
+        }
+      });
+
+      // Remove
+      row.querySelector(".remove-btn").addEventListener("click", async () => {
+        await deleteDoc(doc(db, "users", uid, "cart", id));
+      });
+
+      cartItemsDiv.appendChild(row);
     });
 
-    const badge = document.getElementById("cartBadge");
-
+    // Update badge
     if (totalQty > 0) {
       badge.style.display = "inline-block";
       badge.textContent = totalQty;
@@ -181,14 +168,12 @@ function listenToCart(uid) {
       badge.style.display = "none";
     }
 
-    document.getElementById("cartTotal").textContent =
-      `Total: $${totalPrice}`;
-
+    cartTotal.innerHTML = `<strong>Total: $${totalPrice}</strong>`;
   });
 }
 
 /* =========================
-   Drawer Toggle
+   DRAWER TOGGLE
 ========================= */
 const cartIcon = document.getElementById("cartIcon");
 const drawer = document.getElementById("cartDrawer");
@@ -204,7 +189,7 @@ document.addEventListener("click", e => {
 });
 
 /* =========================
-   Auth Guard
+   AUTH GUARD
 ========================= */
 onAuthStateChanged(auth, user => {
 
