@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Confirmation</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-container">
+    <a href="catalog.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <h1>Order Confirmation</h1>
+  <div id="orderDetails"></div>
+
+  <a href="catalog.html" class="btn">Return to Catalog</a>
+
+</main>
+
+<script type="module">
+
+import { auth, db } from "./js/firebase-config.js";
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("orderId");
+
+onAuthStateChanged(auth, async user => {
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const orderRef = doc(db, "orders", orderId);
+  const orderSnap = await getDoc(orderRef);
+
+  if (!orderSnap.exists()) {
+    document.getElementById("orderDetails").innerHTML =
+      "<p>Order not found.</p>";
+    return;
+  }
+
+  const order = orderSnap.data();
+
+  let html = `
+    <p><strong>Order ID:</strong> ${order.orderId}</p>
+    <p><strong>Status:</strong> ${order.status}</p>
+    <hr>
+  `;
+
+  order.items.forEach(item => {
+    html += `
+      <p>${item.compound} ${item.mg}mg
+      (Qty: ${item.quantity}) —
+      $${item.quantity * item.price}</p>
+    `;
+  });
+
+  html += `<hr><h3>Total: $${order.total}</h3>`;
+
+  document.getElementById("orderDetails").innerHTML = html;
+
+});
+
+</script>
+
+</body>
+</html>
