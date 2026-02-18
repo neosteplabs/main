@@ -1,4 +1,5 @@
 import { auth, db } from "./firebase-config.js";
+
 import {
   onAuthStateChanged,
   signOut
@@ -8,47 +9,35 @@ import {
   collection,
   doc,
   setDoc,
-  getDocs,
-  deleteDoc,
-  onSnapshot,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
-let authChecked = false;
 
 /* =========================
-   AUTH GUARD (SAFE)
+   AUTH GUARD
 ========================= */
 onAuthStateChanged(auth, user => {
-
-  if (!authChecked) {
-    authChecked = true;
-
-    if (!user) {
-      window.location.replace("index.html");
-      return;
-    }
-
-    currentUser = user;
-    renderProducts();
-    listenToCart(user.uid);
+  if (!user) {
+    window.location.replace("index.html");
+    return;
   }
 
+  currentUser = user;
+  renderProducts();
+  listenToCart(user.uid);
 });
 
 /* =========================
-   Logout
+   LOGOUT
 ========================= */
-const logoutBtn = document.getElementById("logoutBtn");
-
-logoutBtn?.addEventListener("click", async () => {
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.replace("index.html");
 });
 
 /* =========================
-   Product Data
+   PRODUCT DATA
 ========================= */
 const products = [
   {
@@ -64,13 +53,11 @@ const products = [
 ];
 
 /* =========================
-   Render Products
+   RENDER PRODUCTS
 ========================= */
 function renderProducts() {
 
   const container = document.getElementById("productContainer");
-  if (!container) return;
-
   container.innerHTML = "";
 
   products.forEach(product => {
@@ -91,7 +78,6 @@ function renderProducts() {
       </select>
 
       <input type="number" class="qtyInput" value="1" min="1">
-
       <button class="btn addToCart">Add to Cart</button>
     `;
 
@@ -116,8 +102,6 @@ function renderProducts() {
         }
       );
 
-      alert("Added to cart");
-
     });
 
     container.appendChild(card);
@@ -125,7 +109,7 @@ function renderProducts() {
 }
 
 /* =========================
-   Cart Listener
+   CART LISTENER
 ========================= */
 function listenToCart(uid) {
 
@@ -137,8 +121,6 @@ function listenToCart(uid) {
     let totalPrice = 0;
 
     const cartItemsDiv = document.getElementById("cartItems");
-    if (!cartItemsDiv) return;
-
     cartItemsDiv.innerHTML = "";
 
     snapshot.forEach(docSnap => {
@@ -152,31 +134,47 @@ function listenToCart(uid) {
 
       row.innerHTML = `
         <div>
-          <strong>${item.compound} ${item.mg}mg</strong>
-          <div>Qty: ${item.quantity}</div>
+          ${item.compound} ${item.mg}mg
+          <br>Qty: ${item.quantity}
         </div>
         <div>$${item.quantity * item.price}</div>
       `;
 
       cartItemsDiv.appendChild(row);
-
     });
 
     const badge = document.getElementById("cartBadge");
 
-    if (badge) {
-      if (totalQty > 0) {
-        badge.style.display = "inline-block";
-        badge.textContent = totalQty;
-      } else {
-        badge.style.display = "none";
-      }
+    if (totalQty > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = totalQty;
+    } else {
+      badge.style.display = "none";
     }
 
-    const totalEl = document.getElementById("cartTotal");
-    if (totalEl) {
-      totalEl.textContent = `Total: $${totalPrice}`;
-    }
-
+    document.getElementById("cartTotal").textContent =
+      `Total: $${totalPrice}`;
   });
 }
+
+/* =========================
+   CART DROPDOWN TOGGLE
+========================= */
+const cartIcon = document.getElementById("cartIcon");
+const cartDropdown = document.getElementById("cartDropdown");
+
+cartIcon?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  cartDropdown.classList.toggle("open");
+});
+
+document.addEventListener("click", () => {
+  cartDropdown.classList.remove("open");
+});
+
+/* =========================
+   CHECKOUT PAGE REDIRECT
+========================= */
+document.getElementById("goCheckout")?.addEventListener("click", () => {
+  window.location.href = "checkout.html";
+});
