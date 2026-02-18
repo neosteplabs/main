@@ -8,7 +8,9 @@ import {
   collection,
   doc,
   setDoc,
-  onSnapshot
+  deleteDoc,
+  onSnapshot,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
@@ -30,82 +32,72 @@ const products = [
 ];
 
 /* =========================
-   Render Products (LAB STYLE)
+   Render Products
 ========================= */
 function renderProducts() {
-
   const container = document.getElementById("productContainer");
   container.innerHTML = "";
 
   products.forEach(product => {
 
     const card = document.createElement("div");
-    card.className = "product-card";
-
-    let selection = {}; // Track mg quantities locally
-
-    const mgRows = Object.keys(product.prices).map(mg => {
-
-      selection[mg] = 0;
-
-      return `
-        <div class="mg-row" data-mg="${mg}">
-          <div class="mg-info">
-            <strong>${mg} mg</strong>
-            <span>$${product.prices[mg]}</span>
-          </div>
-
-          <div class="qty-controls">
-            <button class="qty-minus">−</button>
-            <span class="qty-value">0</span>
-            <button class="qty-plus">+</button>
-          </div>
-        </div>
-      `;
-    }).join("");
+    card.className = "compound-card";
 
     card.innerHTML = `
-      <img src="${product.image}" class="product-image">
+      <img src="${product.image}" class="compound-image">
       <h2>${product.compound}</h2>
-      <div class="mg-container">
-        ${mgRows}
-      </div>
+      <div class="strength-container"></div>
       <button class="btn addSelected">Add Selected to Cart</button>
     `;
 
-    /* =========================
-       Quantity Logic
-    ========================= */
-    card.querySelectorAll(".mg-row").forEach(row => {
+    const strengthContainer = card.querySelector(".strength-container");
 
-      const mg = row.dataset.mg;
-      const minusBtn = row.querySelector(".qty-minus");
-      const plusBtn = row.querySelector(".qty-plus");
-      const qtyDisplay = row.querySelector(".qty-value");
+    Object.keys(product.prices).forEach(mg => {
 
-      minusBtn.addEventListener("click", () => {
-        if (selection[mg] > 0) {
-          selection[mg]--;
-          qtyDisplay.textContent = selection[mg];
+      const row = document.createElement("div");
+      row.className = "strength-row";
+
+      row.innerHTML = `
+        <span>${mg} mg</span>
+        <span>$${product.prices[mg]}</span>
+        <div class="stepper">
+          <button class="minus">–</button>
+          <span class="qty" data-mg="${mg}">0</span>
+          <button class="plus">+</button>
+        </div>
+      `;
+
+      const minus = row.querySelector(".minus");
+      const plus = row.querySelector(".plus");
+      const qtyDisplay = row.querySelector(".qty");
+
+      plus.addEventListener("click", () => {
+        qtyDisplay.textContent = parseInt(qtyDisplay.textContent) + 1;
+      });
+
+      minus.addEventListener("click", () => {
+        const current = parseInt(qtyDisplay.textContent);
+        if (current > 0) {
+          qtyDisplay.textContent = current - 1;
         }
       });
 
-      plusBtn.addEventListener("click", () => {
-        selection[mg]++;
-        qtyDisplay.textContent = selection[mg];
-      });
-
+      strengthContainer.appendChild(row);
     });
 
-    /* =========================
-       Add Selected To Cart
-    ========================= */
-    card.querySelector(".addSelected").addEventListener("click", async () => {
+    const addBtn = card.querySelector(".addSelected");
 
-      for (const mg in selection) {
+    addBtn.addEventListener("click", async () => {
 
-        if (selection[mg] > 0) {
+      const qtyElements = card.querySelectorAll(".qty");
 
+      for (let el of qtyElements) {
+        const mg = el.dataset.mg;
+        const qty = parseInt(el.textContent);
+
+        if (qty > 0) {
+
+          const price = product.prices[mg];
           const itemId = `${product.compound}-${mg}`;
 
           await setDoc(
@@ -113,17 +105,14 @@ function renderProducts() {
             {
               compound: product.compound,
               mg,
-              quantity: selection[mg],
-              price: product.prices[mg]
+              quantity: qty,
+              price
             }
           );
 
+          el.textContent = "0";
         }
       }
-
-      // Reset local UI quantities
-      card.querySelectorAll(".qty-value").forEach(el => el.textContent = "0");
-      Object.keys(selection).forEach(mg => selection[mg] = 0);
 
     });
 
@@ -149,16 +138,30 @@ function listenToCart(uid) {
     snapshot.forEach(docSnap => {
 
       const item = docSnap.data();
+      const itemId = docSnap.id;
+
       totalQty += item.quantity;
       totalPrice += item.quantity * item.price;
 
       const row = document.createElement("div");
-      row.innerHTML = `
-        <p>${item.compound} ${item.mg}mg 
-        (Qty: ${item.quantity}) - $${item.quantity * item.price}</p>
-      `;
-      cartItemsDiv.appendChild(row);
+      row.className = "cart-row";
 
+      row.innerHTML = `
+        <div>
+          <strong>${item.compound} ${item.mg}mg</strong><br>
+          Qty: ${item.quantity}
+        </div>
+        <div>
+          $${item.quantity * item.price}
+          <button class="removeBtn">✕</button>
+        </div>
+      `;
+
+      row.querySelector(".removeBtn").addEventListener("click", async () => {
+        await deleteDoc(doc(db, "users", uid, "cart", itemId));
+      });
+
+      cartItemsDiv.appendChild(row);
     });
 
     const badge = document.getElementById("cartBadge");
@@ -192,11 +195,19 @@ document.addEventListener("click", e => {
 });
 
 /* =========================
-   Auth Guard
+   Auth Guard + Approval Check
 ========================= */
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists() || snap.data().approved !== true) {
     window.location.href = "index.html";
     return;
   }
@@ -204,5 +215,4 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
   renderProducts();
   listenToCart(user.uid);
-
 });
