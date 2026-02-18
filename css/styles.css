@@ -305,3 +305,66 @@ button:hover,
   margin-bottom: 10px;
   font-size: 15px;
 }
+/* =========================
+   ACCOUNT PAGE LAYOUT
+========================= */
+
+.account-layout {
+  display: flex;
+  gap: 40px;
+}
+
+.account-sidebar {
+  width: 220px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  height: fit-content;
+}
+
+.account-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.account-sidebar li {
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.account-sidebar li.active {
+  color: #2563eb;
+}
+
+.account-content {
+  flex: 1;
+}
+
+.account-tab {
+  display: none;
+}
+
+.account-tab.active {
+  display: block;
+}
+
+.profile-box {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .account-layout {
+    flex-direction: column;
+  }
+
+  .account-sidebar {
+    width: 100%;
+  }
+}
