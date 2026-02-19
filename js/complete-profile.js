@@ -7,27 +7,29 @@ import {
 import {
   doc,
   getDoc,
-  setDoc,
   updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* =====================================================
+/* =========================
    ELEMENTS
-===================================================== */
+========================= */
 
-const address1Input = document.getElementById("address1");
-const address2Input = document.getElementById("address2");
-const cityInput = document.getElementById("city");
-const stateInput = document.getElementById("state");
-const zipInput = document.getElementById("zip");
-const phoneInput = document.getElementById("phone");
-const referralInput = document.getElementById("referralCode");
-const saveBtn = document.getElementById("saveProfileBtn");
+const form = document.getElementById("profileForm");
 
-/* =====================================================
-   AUTH GUARD
-===================================================== */
+const address1 = document.getElementById("address1");
+const address2 = document.getElementById("address2");
+const city = document.getElementById("city");
+const state = document.getElementById("state");
+const zip = document.getElementById("zip");
+const phone = document.getElementById("phone");
+const referralInput = document.getElementById("referralInput");
+
+let currentUser = null;
+
+/* =========================
+   AUTH CHECK + PREFILL
+========================= */
 
 onAuthStateChanged(auth, async (user) => {
 
@@ -36,80 +38,62 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  currentUser = user;
+
   const userRef = doc(db, "users", user.uid);
   const userSnap = await getDoc(userRef);
 
-  // If profile already completed → go to catalog
-  if (userSnap.exists() && userSnap.data().profileComplete === true) {
+  if (!userSnap.exists()) {
+    console.error("User document missing.");
+    return;
+  }
+
+  const data = userSnap.data();
+
+  // If already completed → go to catalog
+  if (data.profileComplete === true) {
     window.location.replace("catalog.html");
     return;
   }
 
+  // Prefill if partial data exists
+  address1.value = data.address1 || "";
+  address2.value = data.address2 || "";
+  city.value = data.city || "";
+  state.value = data.state || "";
+  zip.value = data.zip || "";
+  phone.value = data.phone || "";
 });
 
-/* =====================================================
+/* =========================
    SAVE PROFILE
-===================================================== */
+========================= */
 
-saveBtn?.addEventListener("click", async () => {
+form?.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  const user = auth.currentUser;
-
-  if (!user) {
-    window.location.replace("index.html");
-    return;
-  }
-
-  const address1 = address1Input.value.trim();
-  const address2 = address2Input.value.trim();
-  const city = cityInput.value.trim();
-  const state = stateInput.value.trim();
-  const zip = zipInput.value.trim();
-  const phone = phoneInput.value.trim();
-  const referralCode = referralInput.value.trim();
-
-  // Basic validation
-  if (!address1 || !city || !state || !zip || !phone) {
-    alert("Please complete all required fields.");
-    return;
-  }
+  if (!currentUser) return;
 
   try {
 
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
+    const userRef = doc(db, "users", currentUser.uid);
 
-    // If user doc somehow doesn't exist, create it
-    if (!userSnap.exists()) {
-      await setDoc(userRef, {
-        email: user.email,
-        createdAt: serverTimestamp(),
-        referralCode: "",
-        profileComplete: false
-      });
-    }
-
-    // Update profile fields
     await updateDoc(userRef, {
-      address1,
-      address2,
-      city,
-      state,
-      zip,
-      phone,
-      referralCode: referralCode || userSnap.data()?.referralCode || "",
+      address1: address1.value.trim(),
+      address2: address2.value.trim(),
+      city: city.value.trim(),
+      state: state.value.trim(),
+      zip: zip.value.trim(),
+      phone: phone.value.trim(),
       profileComplete: true,
       profileCompletedAt: serverTimestamp()
     });
 
-    // Force reload auth state before redirect
-    await user.reload();
-
+    // Success → go to catalog
     window.location.replace("catalog.html");
 
   } catch (error) {
-    console.error(error);
-    alert("Error saving profile. Please try again.");
+    console.error("Profile save error:", error);
+    alert("Error saving profile. Check console.");
   }
-
 });
