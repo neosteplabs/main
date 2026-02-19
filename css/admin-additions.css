@@ -1,0 +1,17 @@
+
+.admin-product-card {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+}
+
+.admin-product-card input[type="number"],
+.admin-product-card input[type="text"] {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}

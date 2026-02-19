@@ -8,7 +8,6 @@
 </head>
 <body>
 
-
 <header class="navbar">
   <div class="nav-container">
     <a href="catalog.html">
@@ -17,12 +16,11 @@
 
     <div class="nav-right">
       <a href="catalog.html" class="nav-link">Catalog</a>
-
       <div class="dropdown">
         <button class="dropdown-toggle">Account ▾</button>
         <div class="dropdown-menu">
           <a href="account.html">Profile</a>
-          <a href="admin.html" id="adminLink" style="display:none;">
+          <a href="admin.html">
             Dashboard <span class="admin-badge">ADMIN</span>
           </a>
           <a href="#" id="logoutBtn">Logout</a>
@@ -32,14 +30,13 @@
   </div>
 </header>
 
-
 <main>
   <h1>Admin Dashboard</h1>
-  <p>Production-ready unified admin layout.</p>
+  <div id="productsContainer"></div>
 </main>
 
 <footer class="footer">© 2026 NeoStep. Research use only.</footer>
 
-<script type="module" src="js/navbar.js"></script>
+<script type="module" src="js/admin.js"></script>
 </body>
 </html>

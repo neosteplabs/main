@@ -1,122 +1,78 @@
+
 import { auth, db } from "./firebase-config.js";
 
 import {
   onAuthStateChanged,
-  signOut,
-  getIdTokenResult
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   collection,
-  doc,
   getDocs,
-  updateDoc,
-  query,
-  orderBy
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-let currentUser = null;
-
-/* =========================
-   AUTH + ADMIN GUARD
-========================= */
-
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
     window.location.replace("index.html");
     return;
   }
 
-  const token = await getIdTokenResult(user);
+  const isAdmin = user.email === "lurrtopia1@gmail.com";
 
-  if (!token.claims.admin) {
-    alert("Access denied.");
+  if (!isAdmin) {
     window.location.replace("catalog.html");
     return;
   }
 
-  currentUser = user;
-
   loadProducts();
 });
-
-
-/* =========================
-   LOGOUT
-========================= */
 
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.replace("index.html");
 });
 
-
-/* =========================
-   LOAD PRODUCTS
-========================= */
-
 async function loadProducts() {
-
-  const container = document.getElementById("adminProducts");
+  const container = document.getElementById("productsContainer");
   container.innerHTML = "";
 
-  const q = query(
-    collection(db, "products"),
-    orderBy("displayOrder", "asc")
-  );
-
-  const snapshot = await getDocs(q);
+  const snapshot = await getDocs(collection(db, "products"));
 
   snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    const id = docSnap.id;
 
-    const product = docSnap.data();
-    const productId = docSnap.id;
+    const card = document.createElement("div");
+    card.className = "admin-product-card";
 
-    const row = document.createElement("div");
-    row.className = "admin-product";
-
-    row.innerHTML = `
-      <div class="admin-row">
-        <strong>${product.code}</strong>
-      </div>
-
+    card.innerHTML = `
+      <h3>${data.code}</h3>
       <label>Price</label>
-      <input type="number" class="priceInput" value="${product.price}">
-
+      <input type="number" value="${data.price || 0}" class="priceInput">
       <label>Description</label>
-      <input type="text" class="descInput" value="${product.description}">
-
+      <input type="text" value="${data.description || ""}" class="descInput">
       <label>Display Order</label>
-      <input type="number" class="orderInput" value="${product.displayOrder}">
-
+      <input type="number" value="${data.displayOrder || 0}" class="orderInput">
       <label>
-        <input type="checkbox" class="visibleInput" ${product.visible ? "checked" : ""}>
+        <input type="checkbox" ${data.visible ? "checked" : ""} class="visibleInput">
         Visible
       </label>
-
       <button class="btn saveBtn">Save</button>
       <hr>
     `;
 
-    const priceInput = row.querySelector(".priceInput");
-    const descInput = row.querySelector(".descInput");
-    const orderInput = row.querySelector(".orderInput");
-    const visibleInput = row.querySelector(".visibleInput");
-    const saveBtn = row.querySelector(".saveBtn");
-
-    saveBtn.addEventListener("click", async () => {
-
-      await updateDoc(doc(db, "products", productId), {
-        price: parseFloat(priceInput.value),
-        description: descInput.value,
-        displayOrder: parseInt(orderInput.value),
-        visible: visibleInput.checked
+    card.querySelector(".saveBtn").addEventListener("click", async () => {
+      await updateDoc(doc(db, "products", id), {
+        price: parseFloat(card.querySelector(".priceInput").value),
+        description: card.querySelector(".descInput").value,
+        displayOrder: parseInt(card.querySelector(".orderInput").value),
+        visible: card.querySelector(".visibleInput").checked
       });
-
-      alert("Product updated.");
+      alert("Saved");
     });
 
-    container.appendChild(row);
+    container.appendChild(card);
   });
 }
