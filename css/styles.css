@@ -46,9 +46,10 @@ h1 {
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: #f8f9fb;
+  background: #ffffff;
   border-radius: 60px;
-  padding: 14px 28px;
+  padding: 10px 22px;
+  height: 60px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.08);
 
   display: flex;
@@ -57,7 +58,12 @@ h1 {
 }
 
 .header-logo {
-  height: 40px;
+  height: 100%;
+  max-height: 44px; /* adjust if needed */
+  width: auto;
+  object-fit: contain;
+}
+
 }
 
 .nav-right {
