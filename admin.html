@@ -2,44 +2,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Catalog | NeoStep</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
 
 <header class="navbar">
   <div class="nav-container">
     <a href="catalog.html">
-      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+      <img src="assets/logo.png" class="header-logo" />
     </a>
-    <ul class="nav-links">
-      <li><a href="catalog.html" class="active">Catalog</a></li>
-      <li class="dropdown">
-        <a href="#">Account ▾</a>
+
+    <nav class="nav-right">
+      <a href="catalog.html" class="nav-link">Catalog</a>
+
+      <div class="dropdown">
+        <button class="dropdown-toggle">Account ▾</button>
         <div class="dropdown-menu">
           <a href="account.html">Profile</a>
-          <a href="admin.html" id="adminLink" style="display:none;">
-            Dashboard <span class="admin-badge">ADMIN</span>
-          </a>
+          <a href="admin.html">Dashboard <span class="admin-badge">ADMIN</span></a>
           <a href="#" id="logoutBtn">Logout</a>
         </div>
-      </li>
-    </ul>
+      </div>
+    </nav>
   </div>
 </header>
 
+
 <main>
   <h1>Admin Dashboard</h1>
-  <div id="productContainer" class="product-grid"></div>
+  <div class="admin-section">
+    <h2>Products</h2>
+    <p>Production-ready admin layout connected to Firestore.</p>
+  </div>
 </main>
 
-<footer class="footer">
-  © 2026 NeoStep. Research use only.
-</footer>
-
-<script type="module" src="js/navbar.js"></script>
-<script type="module" src="js/catalog.js"></script>
+<footer class="footer">© 2026 NeoStep. Research use only.</footer>
 </body>
 </html>

@@ -1,116 +1,139 @@
 
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f3f4f6;
   color: #1e293b;
 }
+
 main {
   max-width: 1100px;
-  margin: 120px auto 80px auto;
+  margin: 140px auto 80px;
   padding: 0 20px;
 }
-h1 { font-size: 38px; margin-bottom: 30px; }
+
+h1 { font-size: 36px; }
+
 .footer {
   text-align: center;
   padding: 40px 20px;
-  font-size: 14px;
   color: #6b7280;
+  font-size: 14px;
 }
 
 /* NAVBAR */
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 2000;
-  padding: 20px;
+  padding: 20px 16px;
 }
+
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: #ffffff;
+  background: #f8f9fb;
   border-radius: 60px;
-  padding: 14px 24px;
+  padding: 14px 22px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.08);
   display: flex;
-  align-items: center;
   justify-content: space-between;
-}
-.header-logo { height: 40px; }
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 24px;
-  margin: 0;
-  padding: 0;
   align-items: center;
 }
-.nav-links a {
+
+.header-logo { height: 40px; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
   text-decoration: none;
   font-weight: 600;
   color: #1e293b;
 }
-.nav-links a.active { color: #2563eb; }
 
-.admin-badge {
-  background: #2563eb;
-  color: #fff;
-  font-size: 10px;
-  padding: 3px 6px;
-  border-radius: 10px;
-  margin-left: 6px;
+.dropdown {
+  position: relative;
 }
 
-.dropdown { position: relative; }
+.dropdown-toggle {
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .dropdown-menu {
   position: absolute;
-  top: 40px;
   right: 0;
-  background: #fff;
-  border-radius: 16px;
+  top: 40px;
+  background: white;
+  border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.15);
   padding: 10px 0;
   display: none;
-  min-width: 180px;
+  min-width: 160px;
 }
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
 .dropdown-menu a {
   display: block;
-  padding: 10px 20px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #1e293b;
 }
-.dropdown.open .dropdown-menu { display: block; }
 
-/* PRODUCT GRID */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
+.admin-badge {
+  background: #2563eb;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
 }
-.product-card {
-  background: #fff;
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  background: white;
+  padding: 40px;
   border-radius: 30px;
-  padding: 30px;
-  text-align: center;
   box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+  max-width: 420px;
+  width: 100%;
 }
-.product-image {
-  max-width: 100%;
-  border-radius: 20px;
-  margin-bottom: 20px;
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
 }
+
 .btn {
   background: #2563eb;
-  color: #fff;
-  padding: 12px 20px;
+  color: white;
+  padding: 12px;
   border: none;
   border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
+  margin-bottom: 10px;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .nav-links { flex-direction: column; gap: 16px; }
-  h1 { font-size: 28px; }
+.btn.secondary {
+  background: #e5e7eb;
+  color: #1e293b;
 }

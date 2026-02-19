@@ -1,39 +1,46 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NeoStep Secure Portal</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>NeoStep Login</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+
 <header class="navbar">
   <div class="nav-container">
-    <a href="#">
-      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    <a href="catalog.html">
+      <img src="assets/logo.png" class="header-logo" />
     </a>
+
+    <nav class="nav-right">
+      <a href="catalog.html" class="nav-link">Catalog</a>
+
+      <div class="dropdown">
+        <button class="dropdown-toggle">Account ▾</button>
+        <div class="dropdown-menu">
+          <a href="account.html">Profile</a>
+          <a href="admin.html">Dashboard <span class="admin-badge">ADMIN</span></a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </div>
+    </nav>
   </div>
 </header>
 
-<main>
+
+<main class="auth-container">
   <div class="auth-card">
-    <h2>Secure Laboratory Access</h2>
-
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-
-    <button id="loginBtn">Login</button>
-    <button id="registerBtn" style="margin-top:10px;">Register</button>
-
-    <p id="auth-message" style="margin-top:10px;color:red;"></p>
+    <h1>Secure Laboratory Access</h1>
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password" />
+    <button class="btn">Login</button>
+    <button class="btn secondary">Register</button>
   </div>
 </main>
 
-<footer class="footer">
-  © 2026 NeoStep. Research use only.
-</footer>
-
-<script type="module" src="js/script.js"></script>
+<footer class="footer">© 2026 NeoStep. Research use only.</footer>
 </body>
 </html>
