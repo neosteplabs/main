@@ -9,39 +9,98 @@ import {
   doc,
   getDoc,
   collection,
-  query,
-  orderBy,
-  onSnapshot
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =========================
-   DOM ELEMENTS
+   AUTH GUARD
 ========================= */
-const logoutBtn = document.getElementById("logoutBtn");
 
-const profileTabBtn = document.getElementById("profileTabBtn");
-const ordersTabBtn = document.getElementById("ordersTabBtn");
+onAuthStateChanged(auth, async (user) => {
 
-const profileSection = document.getElementById("profileSection");
-const ordersSection = document.getElementById("ordersSection");
+  if (!user) {
+    window.location.replace("index.html");
+    return;
+  }
 
-const ordersContainer = document.getElementById("ordersContainer");
+  const userDocRef = doc(db, "users", user.uid);
+  const userDoc = await getDoc(userDocRef);
 
-/* =========================
-   Logout
-========================= */
-logoutBtn?.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "index.html";
+  if (!userDoc.exists() || !userDoc.data().profileComplete) {
+    window.location.replace("complete-profile.html");
+    return;
+  }
+
+  loadProfile(userDoc.data());
+  loadOrders(user.uid);
 });
 
 /* =========================
-   Tab Switching
+   LOGOUT
 ========================= */
+
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.replace("index.html");
+});
+
+/* =========================
+   PROFILE
+========================= */
+
+function loadProfile(data) {
+  document.getElementById("emailDisplay").textContent = data.email || "-";
+  document.getElementById("phoneDisplay").textContent = data.phone || "-";
+  document.getElementById("addressDisplay").textContent = data.address || "-";
+  document.getElementById("referralDisplay").textContent = data.referralCode || "-";
+}
+
+/* =========================
+   ORDER HISTORY
+========================= */
+
+async function loadOrders(uid) {
+
+  const ordersContainer = document.getElementById("ordersContainer");
+  ordersContainer.innerHTML = "";
+
+  const ordersRef = collection(db, "users", uid, "orders");
+  const snapshot = await getDocs(ordersRef);
+
+  if (snapshot.empty) {
+    ordersContainer.innerHTML = "<p>No orders yet.</p>";
+    return;
+  }
+
+  snapshot.forEach(docSnap => {
+    const order = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "order-card";
+
+    div.innerHTML = `
+      <strong>Order ID:</strong> ${docSnap.id}<br>
+      <strong>Total:</strong> $${order.total}<br>
+      <strong>Date:</strong> ${order.createdAt?.toDate().toLocaleString() || ""}
+      <hr>
+    `;
+
+    ordersContainer.appendChild(div);
+  });
+}
+
+/* =========================
+   TABS
+========================= */
+
+const profileTabBtn = document.getElementById("profileTabBtn");
+const ordersTabBtn = document.getElementById("ordersTabBtn");
+const profileSection = document.getElementById("profileSection");
+const ordersSection = document.getElementById("ordersSection");
+
 profileTabBtn?.addEventListener("click", () => {
   profileSection.style.display = "block";
   ordersSection.style.display = "none";
-
   profileTabBtn.classList.add("active");
   ordersTabBtn.classList.remove("active");
 });
@@ -49,103 +108,6 @@ profileTabBtn?.addEventListener("click", () => {
 ordersTabBtn?.addEventListener("click", () => {
   profileSection.style.display = "none";
   ordersSection.style.display = "block";
-
-  profileTabBtn.classList.remove("active");
   ordersTabBtn.classList.add("active");
+  profileTabBtn.classList.remove("active");
 });
-
-/* =========================
-   Auth Guard
-========================= */
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  loadProfile(user);
-  loadOrders(user.uid);
-
-});
-
-/* =========================
-   Load Profile
-========================= */
-async function loadProfile(user) {
-
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-
-  if (!snap.exists()) return;
-
-  const data = snap.data();
-
-  document.getElementById("emailDisplay").textContent =
-    user.email || "-";
-
-  document.getElementById("phoneDisplay").textContent =
-    data.phone || "-";
-
-  document.getElementById("addressDisplay").innerHTML =
-    `${data.address1 || ""} ${data.address2 || ""}<br>
-     ${data.city || ""}, ${data.state || ""} ${data.zip || ""}`;
-
-  document.getElementById("referralDisplay").textContent =
-    data.referralCode || "-";
-
-}
-
-/* =========================
-   Load Orders (Realtime)
-========================= */
-function loadOrders(uid) {
-
-  const ordersRef = collection(db, "users", uid, "orders");
-  const q = query(ordersRef, orderBy("createdAt", "desc"));
-
-  onSnapshot(q, (snapshot) => {
-
-    ordersContainer.innerHTML = "";
-
-    if (snapshot.empty) {
-      ordersContainer.innerHTML = "<p>No orders found.</p>";
-      return;
-    }
-
-    snapshot.forEach(docSnap => {
-
-      const order = docSnap.data();
-
-      const orderDiv = document.createElement("div");
-      orderDiv.className = "order-card";
-
-      let itemsHtml = "";
-
-      order.items?.forEach(item => {
-        itemsHtml += `
-          <div class="order-item">
-            ${item.compound} ${item.mg}mg 
-            × ${item.quantity} 
-            — $${item.quantity * item.price}
-          </div>
-        `;
-      });
-
-      const date = order.createdAt?.seconds
-        ? new Date(order.createdAt.seconds * 1000).toLocaleString()
-        : "Pending";
-
-      orderDiv.innerHTML = `
-        <div><strong>Order ID:</strong> ${docSnap.id}</div>
-        <div><strong>Date:</strong> ${date}</div>
-        <div>${itemsHtml}</div>
-        <div><strong>Total:</strong> $${order.total}</div>
-      `;
-
-      ordersContainer.appendChild(orderDiv);
-
-    });
-
-  });
-}
