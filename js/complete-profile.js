@@ -15,20 +15,19 @@ import {
    ELEMENTS
 ========================= */
 
-const form = document.getElementById("profileForm");
-
-const address1 = document.getElementById("address1");
-const address2 = document.getElementById("address2");
-const city = document.getElementById("city");
-const state = document.getElementById("state");
-const zip = document.getElementById("zip");
-const phone = document.getElementById("phone");
-const referralInput = document.getElementById("referralInput");
+const address1Input = document.getElementById("address1");
+const address2Input = document.getElementById("address2");
+const cityInput = document.getElementById("city");
+const stateInput = document.getElementById("state");
+const zipInput = document.getElementById("zip");
+const phoneInput = document.getElementById("phone");
+const referralInput = document.getElementById("referral");
+const saveBtn = document.getElementById("saveProfileBtn");
 
 let currentUser = null;
 
 /* =========================
-   AUTH CHECK + PREFILL
+   AUTH GUARD
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
@@ -40,60 +39,65 @@ onAuthStateChanged(auth, async (user) => {
 
   currentUser = user;
 
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+  const userDocRef = doc(db, "users", user.uid);
+  const userDoc = await getDoc(userDocRef);
 
-  if (!userSnap.exists()) {
-    console.error("User document missing.");
+  if (!userDoc.exists()) {
+    window.location.replace("index.html");
     return;
   }
 
-  const data = userSnap.data();
-
-  // If already completed → go to catalog
-  if (data.profileComplete === true) {
+  // If profile already complete → go to catalog
+  if (userDoc.data().profileComplete === true) {
     window.location.replace("catalog.html");
     return;
   }
 
-  // Prefill if partial data exists
-  address1.value = data.address1 || "";
-  address2.value = data.address2 || "";
-  city.value = data.city || "";
-  state.value = data.state || "";
-  zip.value = data.zip || "";
-  phone.value = data.phone || "";
 });
 
 /* =========================
    SAVE PROFILE
 ========================= */
 
-form?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+saveBtn?.addEventListener("click", async () => {
 
   if (!currentUser) return;
 
+  const address1 = address1Input.value.trim();
+  const address2 = address2Input.value.trim();
+  const city = cityInput.value.trim();
+  const state = stateInput.value.trim();
+  const zip = zipInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const referral = referralInput.value.trim();
+
+  if (!address1 || !city || !state || !zip || !phone) {
+    alert("Please complete all required fields.");
+    return;
+  }
+
   try {
 
-    const userRef = doc(db, "users", currentUser.uid);
+    const userDocRef = doc(db, "users", currentUser.uid);
 
-    await updateDoc(userRef, {
-      address1: address1.value.trim(),
-      address2: address2.value.trim(),
-      city: city.value.trim(),
-      state: state.value.trim(),
-      zip: zip.value.trim(),
-      phone: phone.value.trim(),
+    await updateDoc(userDocRef, {
+      address1,
+      address2,
+      city,
+      state,
+      zip,
+      phone,
+      referralCode: referral || null,
       profileComplete: true,
       profileCompletedAt: serverTimestamp()
     });
 
-    // Success → go to catalog
+    // Force redirect AFTER successful write
     window.location.replace("catalog.html");
 
   } catch (error) {
     console.error("Profile save error:", error);
-    alert("Error saving profile. Check console.");
+    alert("There was an error saving your profile.");
   }
+
 });
