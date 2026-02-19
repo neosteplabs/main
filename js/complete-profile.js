@@ -6,9 +6,15 @@ import {
 
 import {
   doc,
+  setDoc,
   updateDoc,
-  getDoc
+  getDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* =========================
+   Elements
+========================= */
 
 const address1 = document.getElementById("address1");
 const address2 = document.getElementById("address2");
@@ -20,20 +26,42 @@ const referralInput = document.getElementById("referralInput");
 const saveBtn = document.getElementById("saveProfileBtn");
 
 /* =========================
-   Auth Guard
+   Auth Guard + Auto Redirect
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
+
   if (!user) {
     window.location.replace("index.html");
     return;
   }
 
-  const userDoc = await getDoc(doc(db, "users", user.uid));
+  try {
 
-  if (userDoc.exists() && userDoc.data().profileComplete) {
-    window.location.replace("catalog.html");
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // If user doc DOES NOT exist (edge case)
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        email: user.email,
+        profileComplete: false,
+        createdAt: serverTimestamp()
+      });
+      return;
+    }
+
+    const userData = userSnap.data();
+
+    // If profile already complete → go to catalog
+    if (userData.profileComplete === true) {
+      window.location.replace("catalog.html");
+    }
+
+  } catch (error) {
+    console.error("Auth guard error:", error);
   }
+
 });
 
 /* =========================
@@ -52,20 +80,51 @@ saveBtn.addEventListener("click", async () => {
 
   try {
 
-    await updateDoc(doc(db, "users", user.uid), {
-      address1: address1.value.trim(),
-      address2: address2.value.trim(),
-      city: city.value.trim(),
-      state: state.value.trim(),
-      zip: zip.value.trim(),
-      phone: phone.value.trim(),
-      referralUsed: referralInput.value.trim() || null,
-      profileComplete: true
-    });
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-    window.location.replace("catalog.html");
+    // If document doesn't exist → create it
+    if (!userSnap.exists()) {
+
+      await setDoc(userRef, {
+        email: user.email,
+        address1: address1.value.trim(),
+        address2: address2.value.trim(),
+        city: city.value.trim(),
+        state: state.value.trim(),
+        zip: zip.value.trim(),
+        phone: phone.value.trim(),
+        referralUsed: referralInput.value.trim() || null,
+        profileComplete: true,
+        createdAt: serverTimestamp()
+      });
+
+    } else {
+
+      await updateDoc(userRef, {
+        address1: address1.value.trim(),
+        address2: address2.value.trim(),
+        city: city.value.trim(),
+        state: state.value.trim(),
+        zip: zip.value.trim(),
+        phone: phone.value.trim(),
+        referralUsed: referralInput.value.trim() || null,
+        profileComplete: true
+      });
+
+    }
+
+    // Double check save succeeded
+    const verifySnap = await getDoc(userRef);
+    if (verifySnap.exists() && verifySnap.data().profileComplete === true) {
+      window.location.replace("catalog.html");
+    } else {
+      alert("Profile saved but verification failed. Refresh and try again.");
+    }
 
   } catch (error) {
+    console.error("Save error:", error);
     alert("Error saving profile: " + error.message);
   }
+
 });
