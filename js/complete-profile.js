@@ -7,14 +7,28 @@ import {
 import {
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* =========================
+   ELEMENTS
+========================= */
+
+const address1Input = document.getElementById("address1");
+const address2Input = document.getElementById("address2");
+const cityInput = document.getElementById("city");
+const stateInput = document.getElementById("state");
+const zipInput = document.getElementById("zip");
+const phoneInput = document.getElementById("phone");
+const referralInput = document.getElementById("referralCode");
 const saveBtn = document.getElementById("saveProfileBtn");
 
+let currentUser = null;
+
 /* =========================
-   AUTH CHECK + PROFILE CHECK
+   AUTH GUARD
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
@@ -24,27 +38,37 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const snap = await getDoc(doc(db, "users", user.uid));
+  currentUser = user;
 
-  if (!snap.exists()) return;
+  try {
 
-  const data = snap.data();
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-  // If already completed → skip page
-  if (data.profileComplete) {
-    window.location.replace("catalog.html");
-    return;
+    if (!userSnap.exists()) {
+      // Create minimal user record if missing
+      await setDoc(userRef, {
+        email: user.email,
+        profileComplete: false,
+        createdAt: serverTimestamp()
+      });
+      return;
+    }
+
+    const userData = userSnap.data();
+
+    // If already complete → go to catalog
+    if (userData.profileComplete === true) {
+      window.location.replace("catalog.html");
+      return;
+    }
+
+  } catch (error) {
+    console.error("Auth guard error:", error);
   }
 
-  // Auto-fill if partially completed
-  if (data.address1) document.getElementById("address1").value = data.address1;
-  if (data.address2) document.getElementById("address2").value = data.address2;
-  if (data.city) document.getElementById("city").value = data.city;
-  if (data.state) document.getElementById("state").value = data.state;
-  if (data.zip) document.getElementById("zip").value = data.zip;
-  if (data.phone) document.getElementById("phone").value = data.phone;
-
 });
+
 
 /* =========================
    SAVE PROFILE
@@ -52,19 +76,19 @@ onAuthStateChanged(auth, async (user) => {
 
 saveBtn?.addEventListener("click", async () => {
 
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Not authenticated.");
+  if (!currentUser) {
+    alert("User session expired. Please log in again.");
+    window.location.replace("index.html");
     return;
   }
 
-  const address1 = document.getElementById("address1").value.trim();
-  const address2 = document.getElementById("address2").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const state = document.getElementById("state").value.trim();
-  const zip = document.getElementById("zip").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+  const address1 = address1Input?.value.trim() || "";
+  const address2 = address2Input?.value.trim() || "";
+  const city = cityInput?.value.trim() || "";
+  const state = stateInput?.value.trim() || "";
+  const zip = zipInput?.value.trim() || "";
+  const phone = phoneInput?.value.trim() || "";
+  const referralCode = referralInput?.value.trim() || "";
 
   if (!address1 || !city || !state || !zip || !phone) {
     alert("Please complete all required fields.");
@@ -73,13 +97,16 @@ saveBtn?.addEventListener("click", async () => {
 
   try {
 
-    await updateDoc(doc(db, "users", user.uid), {
+    const userRef = doc(db, "users", currentUser.uid);
+
+    await updateDoc(userRef, {
       address1,
       address2,
       city,
       state,
       zip,
       phone,
+      referralCode,
       profileComplete: true,
       profileCompletedAt: serverTimestamp()
     });
@@ -87,8 +114,10 @@ saveBtn?.addEventListener("click", async () => {
     window.location.replace("catalog.html");
 
   } catch (error) {
-    console.error(error);
-    alert("Error saving profile.");
+
+    console.error("Save profile error:", error);
+    alert("There was an issue saving your profile. Please try again.");
+
   }
 
 });
