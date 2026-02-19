@@ -11,6 +11,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  getDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -19,13 +20,23 @@ let currentUser = null;
 /* =========================
    AUTH GUARD
 ========================= */
-onAuthStateChanged(auth, user => {
+
+onAuthStateChanged(auth, async (user) => {
+
   if (!user) {
     window.location.replace("index.html");
     return;
   }
 
   currentUser = user;
+
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+
+  if (!userDoc.exists() || !userDoc.data().profileComplete) {
+    window.location.replace("complete-profile.html");
+    return;
+  }
+
   renderProducts();
   listenToCart(user.uid);
 });
@@ -33,6 +44,7 @@ onAuthStateChanged(auth, user => {
 /* =========================
    LOGOUT
 ========================= */
+
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.replace("index.html");
@@ -41,6 +53,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
 /* =========================
    PRODUCTS
 ========================= */
+
 const products = [
   {
     compound: "NS-RT",
@@ -100,8 +113,9 @@ function renderProducts() {
 }
 
 /* =========================
-   CART (Floating Only)
+   CART
 ========================= */
+
 function listenToCart(uid) {
 
   const cartRef = collection(db, "users", uid, "cart");
@@ -157,32 +171,32 @@ function listenToCart(uid) {
     document.getElementById("cartTotal").textContent =
       `Total: $${totalPrice}`;
 
-    const mobileCount = document.getElementById("mobileCartCount");
-    mobileCount.textContent = totalQty;
-
+    document.getElementById("mobileCartCount").textContent = totalQty;
   });
 }
 
 /* =========================
-   DROPDOWN TOGGLE (Floating)
+   CART DROPDOWN
 ========================= */
-const bubble = document.getElementById("mobileCartBubble");
-const dropdown = document.getElementById("cartDropdown");
 
-bubble?.addEventListener("click", e => {
+const mobileBubble = document.getElementById("mobileCartBubble");
+const cartDropdown = document.getElementById("cartDropdown");
+
+mobileBubble?.addEventListener("click", (e) => {
   e.stopPropagation();
-  dropdown.classList.toggle("open");
+  cartDropdown.classList.toggle("open");
 });
 
-document.addEventListener("click", e => {
-  if (!bubble.contains(e.target)) {
-    dropdown.classList.remove("open");
+document.addEventListener("click", (e) => {
+  if (!cartDropdown.contains(e.target)) {
+    cartDropdown.classList.remove("open");
   }
 });
 
 /* =========================
    CHECKOUT
 ========================= */
+
 document.getElementById("goCheckout")?.addEventListener("click", () => {
   window.location.href = "checkout.html";
 });
