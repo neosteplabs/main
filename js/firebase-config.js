@@ -3,7 +3,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBj_yenHwXZs2gKAliMaTH-zq5lku6hoak",
+  apiKey: "AIzaSyBiml1s05I8x5Zr2dxQOYGRlRnr9nAb2gs",
   authDomain: "neostep-portal-b9ea3.firebaseapp.com",
   projectId: "neostep-portal-b9ea3",
   storageBucket: "neostep-portal-b9ea3.appspot.com",
