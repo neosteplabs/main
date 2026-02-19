@@ -9,8 +9,12 @@ import {
   doc,
   getDoc,
   collection,
-  getDocs
+  query,
+  orderBy,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+let unsubscribeOrders = null;
 
 /* =========================
    AUTH GUARD
@@ -32,8 +36,9 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   loadProfile(userDoc.data());
-  loadOrders(user.uid);
+  listenToOrders(user.uid);
 });
+
 
 /* =========================
    LOGOUT
@@ -44,50 +49,84 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   window.location.replace("index.html");
 });
 
+
 /* =========================
-   PROFILE
+   PROFILE DISPLAY
 ========================= */
 
 function loadProfile(data) {
-  document.getElementById("emailDisplay").textContent = data.email || "-";
-  document.getElementById("phoneDisplay").textContent = data.phone || "-";
-  document.getElementById("addressDisplay").textContent = data.address || "-";
-  document.getElementById("referralDisplay").textContent = data.referralCode || "-";
+
+  const fullAddress = `
+    ${data.address1 || ""} 
+    ${data.address2 || ""} 
+    ${data.city || ""}, 
+    ${data.state || ""} 
+    ${data.zip || ""}
+  `.replace(/\s+/g, " ").trim();
+
+  document.getElementById("emailDisplay") &&
+    (document.getElementById("emailDisplay").textContent = data.email || "-");
+
+  document.getElementById("phoneDisplay") &&
+    (document.getElementById("phoneDisplay").textContent = data.phone || "-");
+
+  document.getElementById("addressDisplay") &&
+    (document.getElementById("addressDisplay").textContent = fullAddress || "-");
+
+  document.getElementById("referralDisplay") &&
+    (document.getElementById("referralDisplay").textContent = data.referralCode || "-");
 }
+
 
 /* =========================
-   ORDER HISTORY
+   ORDER HISTORY (LIVE)
 ========================= */
 
-async function loadOrders(uid) {
+function listenToOrders(uid) {
 
   const ordersContainer = document.getElementById("ordersContainer");
-  ordersContainer.innerHTML = "";
+  if (!ordersContainer) return;
 
-  const ordersRef = collection(db, "users", uid, "orders");
-  const snapshot = await getDocs(ordersRef);
+  if (unsubscribeOrders) unsubscribeOrders();
 
-  if (snapshot.empty) {
-    ordersContainer.innerHTML = "<p>No orders yet.</p>";
-    return;
-  }
+  const ordersRef = query(
+    collection(db, "users", uid, "orders"),
+    orderBy("createdAt", "desc")
+  );
 
-  snapshot.forEach(docSnap => {
-    const order = docSnap.data();
+  unsubscribeOrders = onSnapshot(ordersRef, snapshot => {
 
-    const div = document.createElement("div");
-    div.className = "order-card";
+    ordersContainer.innerHTML = "";
 
-    div.innerHTML = `
-      <strong>Order ID:</strong> ${docSnap.id}<br>
-      <strong>Total:</strong> $${order.total}<br>
-      <strong>Date:</strong> ${order.createdAt?.toDate().toLocaleString() || ""}
-      <hr>
-    `;
+    if (snapshot.empty) {
+      ordersContainer.innerHTML = "<p>No orders yet.</p>";
+      return;
+    }
 
-    ordersContainer.appendChild(div);
+    snapshot.forEach(docSnap => {
+
+      const order = docSnap.data();
+
+      const div = document.createElement("div");
+      div.className = "order-card";
+
+      const date =
+        order.createdAt && order.createdAt.toDate
+          ? order.createdAt.toDate().toLocaleString()
+          : "";
+
+      div.innerHTML = `
+        <strong>Order ID:</strong> ${docSnap.id}<br>
+        <strong>Total:</strong> $${order.total || 0}<br>
+        <strong>Date:</strong> ${date}
+        <hr>
+      `;
+
+      ordersContainer.appendChild(div);
+    });
   });
 }
+
 
 /* =========================
    TABS
@@ -98,16 +137,28 @@ const ordersTabBtn = document.getElementById("ordersTabBtn");
 const profileSection = document.getElementById("profileSection");
 const ordersSection = document.getElementById("ordersSection");
 
-profileTabBtn?.addEventListener("click", () => {
+function showProfileTab() {
+  if (!profileSection || !ordersSection) return;
+
   profileSection.style.display = "block";
   ordersSection.style.display = "none";
-  profileTabBtn.classList.add("active");
-  ordersTabBtn.classList.remove("active");
-});
 
-ordersTabBtn?.addEventListener("click", () => {
+  profileTabBtn?.classList.add("active");
+  ordersTabBtn?.classList.remove("active");
+}
+
+function showOrdersTab() {
+  if (!profileSection || !ordersSection) return;
+
   profileSection.style.display = "none";
   ordersSection.style.display = "block";
-  ordersTabBtn.classList.add("active");
-  profileTabBtn.classList.remove("active");
-});
+
+  ordersTabBtn?.classList.add("active");
+  profileTabBtn?.classList.remove("active");
+}
+
+profileTabBtn?.addEventListener("click", showProfileTab);
+ordersTabBtn?.addEventListener("click", showOrdersTab);
+
+// Default tab on load
+showProfileTab();
