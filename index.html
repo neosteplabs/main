@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,46 +11,22 @@
 <header class="navbar">
   <div class="nav-container">
     <a href="catalog.html">
-      <img src="assets/logo/neostep-logo-header.png" class="header-logo">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
     </a>
-
-    <div class="nav-right">
-      <a href="catalog.html" class="nav-link">Catalog</a>
-
-      <div class="dropdown">
-        <button class="dropdown-toggle">Account ▾</button>
-        <div class="dropdown-menu">
-          <a href="account.html">Profile</a>
-          <a href="admin.html" id="adminLink" style="display:none;">
-            Dashboard <span class="admin-badge">ADMIN</span>
-          </a>
-          <a href="#" id="logoutBtn">Logout</a>
-        </div>
-      </div>
-    </div>
   </div>
 </header>
 
 <main class="auth-container">
   <div class="auth-card">
     <h1>Secure Laboratory Access</h1>
-
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-
-    <button id="loginBtn" class="btn">Login</button>
-
-    <p id="auth-message" style="margin-top:15px;color:#dc2626;"></p>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button class="btn" id="loginBtn">Login</button>
   </div>
 </main>
 
-<footer class="footer">
-  © 2026 NeoStep. Research use only.
-</footer>
+<footer class="footer">© 2026 NeoStep. Research use only.</footer>
 
-<!-- IMPORTANT: Auth logic -->
-<script type="module" src="js/account.js"></script>
-<script type="module" src="js/navbar.js"></script>
-
+<script type="module" src="js/auth.js"></script>
 </body>
 </html>

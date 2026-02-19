@@ -1,26 +1,19 @@
 
-import { auth } from "./firebase-config.js";
-import { onAuthStateChanged, signOut } from 
+import { getAuth, onAuthStateChanged, signOut } from 
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-const dropdown = document.querySelector(".dropdown");
-const toggle = document.querySelector(".dropdown-toggle");
+const auth = getAuth();
 
-toggle?.addEventListener("click", (e) => {
-  e.preventDefault();
-  dropdown.classList.toggle("open");
+onAuthStateChanged(auth, user => {
+  if (!user) return;
+
+  const adminLink = document.getElementById("adminLink");
+  if (user.email === "lurrtopia1@gmail.com" && adminLink) {
+    adminLink.style.display = "block";
+  }
 });
 
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "index.html";
-});
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-  const token = await user.getIdTokenResult();
-  if (token.claims.admin) {
-    const adminLink = document.getElementById("adminLink");
-    if (adminLink) adminLink.style.display = "block";
-  }
 });
