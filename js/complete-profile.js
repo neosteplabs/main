@@ -21,7 +21,7 @@ const cityInput = document.getElementById("city");
 const stateInput = document.getElementById("state");
 const zipInput = document.getElementById("zip");
 const phoneInput = document.getElementById("phone");
-const referralInput = document.getElementById("referral");
+const referralInput = document.getElementById("referralCode");
 const saveBtn = document.getElementById("saveProfileBtn");
 
 let currentUser = null;
@@ -39,18 +39,23 @@ onAuthStateChanged(auth, async (user) => {
 
   currentUser = user;
 
-  const userDocRef = doc(db, "users", user.uid);
-  const userDoc = await getDoc(userDocRef);
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
 
-  if (!userDoc.exists()) {
-    window.location.replace("index.html");
-    return;
-  }
+    if (!userDoc.exists()) {
+      window.location.replace("index.html");
+      return;
+    }
 
-  // If profile already complete → go to catalog
-  if (userDoc.data().profileComplete === true) {
-    window.location.replace("catalog.html");
-    return;
+    // If profile already complete → go to catalog
+    if (userDoc.data().profileComplete === true) {
+      window.location.replace("catalog.html");
+      return;
+    }
+
+  } catch (error) {
+    console.error("Error checking profile:", error);
   }
 
 });
@@ -69,7 +74,7 @@ saveBtn?.addEventListener("click", async () => {
   const state = stateInput.value.trim();
   const zip = zipInput.value.trim();
   const phone = phoneInput.value.trim();
-  const referral = referralInput.value.trim();
+  const referral = referralInput ? referralInput.value.trim() : null;
 
   if (!address1 || !city || !state || !zip || !phone) {
     alert("Please complete all required fields.");
@@ -92,7 +97,7 @@ saveBtn?.addEventListener("click", async () => {
       profileCompletedAt: serverTimestamp()
     });
 
-    // Force redirect AFTER successful write
+    // Redirect AFTER successful write
     window.location.replace("catalog.html");
 
   } catch (error) {
