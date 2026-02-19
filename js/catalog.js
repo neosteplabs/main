@@ -12,6 +12,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  getDocs,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -38,7 +39,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  renderProducts();
+  await renderProducts();
   listenToCart(user.uid);
 });
 
@@ -54,62 +55,48 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
 
 
 /* =========================
-   PRODUCTS
+   PRODUCTS (FROM FIRESTORE)
 ========================= */
 
-const products = [
-  {
-    compound: "NS-RT",
-    image: "assets/images/ns-rt-10.png",
-    prices: { 10: 100, 20: 180, 30: 250 }
-  },
-  {
-    compound: "NS-TZ",
-    image: "assets/images/ns-tz-10.png",
-    prices: { 10: 110, 20: 200, 30: 280 }
-  }
-];
-
-function renderProducts() {
+async function renderProducts() {
 
   const container = document.getElementById("productContainer");
   if (!container) return;
 
   container.innerHTML = "";
 
-  products.forEach(product => {
+  const productsRef = collection(db, "products");
+  const snapshot = await getDocs(productsRef);
+
+  snapshot.forEach(docSnap => {
+
+    const product = docSnap.data();
+    const productId = docSnap.id;
+
+    // Only show visible products
+    if (!product.visible) return;
 
     const card = document.createElement("div");
     card.className = "product-card";
 
     card.innerHTML = `
       <img src="${product.image}" class="product-image">
-      <h2>${product.compound}</h2>
-
-      <select class="mgSelect">
-        ${Object.keys(product.prices).map(mg =>
-          `<option value="${mg}">
-            ${mg} mg - $${product.prices[mg]}
-          </option>`
-        ).join("")}
-      </select>
+      <h2>${product.code}</h2>
+      <p>${product.description}</p>
+      <p><strong>$${product.price}</strong></p>
 
       <input type="number" class="qtyInput" value="1" min="1">
       <button class="btn addToCart">Add to Cart</button>
     `;
 
     const addBtn = card.querySelector(".addToCart");
-    const mgSelect = card.querySelector(".mgSelect");
     const qtyInput = card.querySelector(".qtyInput");
 
     addBtn.addEventListener("click", async () => {
 
-      const mg = mgSelect.value;
       const qty = parseInt(qtyInput.value) || 1;
-      const price = product.prices[mg];
-      const itemId = `${product.compound}-${mg}`;
 
-      const itemRef = doc(db, "users", currentUser.uid, "cart", itemId);
+      const itemRef = doc(db, "users", currentUser.uid, "cart", productId);
       const existing = await getDoc(itemRef);
 
       if (existing.exists()) {
@@ -118,10 +105,10 @@ function renderProducts() {
         });
       } else {
         await setDoc(itemRef, {
-          compound: product.compound,
-          mg,
+          productId,
+          code: product.code,
           quantity: qty,
-          price
+          price: product.price
         });
       }
 
@@ -168,7 +155,7 @@ function listenToCart(uid) {
 
       row.innerHTML = `
         <div>
-          ${item.compound} ${item.mg}mg
+          ${item.code}
           <div class="mini-qty">
             <button class="decrease">-</button>
             <span>${item.quantity}</span>
@@ -200,7 +187,6 @@ function listenToCart(uid) {
     cartTotalEl.textContent = `Total: $${totalPrice}`;
     mobileCount.textContent = totalQty;
 
-    // Hide badge if empty
     mobileCount.style.display = totalQty > 0 ? "inline-block" : "none";
   });
 }
