@@ -13,7 +13,9 @@ import {
   deleteDoc,
   getDoc,
   getDocs,
-  onSnapshot
+  onSnapshot,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
@@ -66,14 +68,17 @@ async function renderProducts() {
   container.innerHTML = "";
 
   const productsRef = collection(db, "products");
-  const snapshot = await getDocs(productsRef);
+
+  // ORDER BY displayOrder
+  const q = query(productsRef, orderBy("displayOrder", "asc"));
+
+  const snapshot = await getDocs(q);
 
   snapshot.forEach(docSnap => {
 
     const product = docSnap.data();
     const productId = docSnap.id;
 
-    // Only show visible products
     if (!product.visible) return;
 
     const card = document.createElement("div");
@@ -186,7 +191,6 @@ function listenToCart(uid) {
 
     cartTotalEl.textContent = `Total: $${totalPrice}`;
     mobileCount.textContent = totalQty;
-
     mobileCount.style.display = totalQty > 0 ? "inline-block" : "none";
   });
 }
