@@ -110,19 +110,7 @@ loginBtn?.addEventListener("click", async () => {
 
   try {
 
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    const user = userCredential.user;
-
-    if (!user.emailVerified) {
-      alert("Please verify your email before accessing the portal.");
-      await signOut(auth);
-      return;
-    }
+    await signInWithEmailAndPassword(auth, email, password);
 
     window.location.replace("catalog.html");
 
