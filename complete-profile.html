@@ -2,49 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Complete Profile - NeoStep</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complete Profile</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
-
 <body>
 
-  <!-- NAVBAR -->
-  <header class="navbar">
-    <div class="nav-container">
-      <img src="assets/neostep-logo.png" class="header-logo" alt="NeoStep Logo">
-    </div>
-  </header>
+<nav class="navbar">
+  <div class="nav-container">
+    <img src="logo.png" class="header-logo" />
+  </div>
+</nav>
 
-  <main>
+<main>
+  <div class="auth-card">
     <h1>Complete Your Profile</h1>
 
-    <div class="profile-card">
-      <div class="profile-form">
+    <input id="address1" placeholder="Address Line 1" />
+    <input id="address2" placeholder="Address Line 2" />
+    <input id="city" placeholder="City" />
+    <input id="state" placeholder="State" />
+    <input id="zip" placeholder="ZIP Code" />
+    <input id="phone" placeholder="Phone" />
+    <input id="referralCode" placeholder="Referral Code (Optional)" />
 
-        <input type="text" id="address1" placeholder="Address Line 1">
-        <input type="text" id="address2" placeholder="Address Line 2">
-
-        <input type="text" id="city" placeholder="City">
-        <input type="text" id="state" placeholder="State">
-
-        <input type="text" id="zip" placeholder="ZIP Code">
-        <input type="text" id="phone" placeholder="Phone">
-
-        <input type="text" id="referralInput" class="full-width" placeholder="Referral Code (Optional)">
-
-        <button id="saveProfileBtn" class="btn save-btn">
-          Save Profile
-        </button>
-
-      </div>
-    </div>
-  </main>
-
-  <div class="footer">
-    © 2026 NeoStep. Research use only.
+    <button class="btn" id="saveProfileBtn">Save Profile</button>
   </div>
+</main>
 
-  <script type="module" src="complete-profile.js"></script>
+<div class="footer">
+  © 2026 NeoStep. Research use only.
+</div>
+
+<script type="module" src="complete-profile.js"></script>
 </body>
 </html>
