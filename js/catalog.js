@@ -23,6 +23,30 @@ let currentUser = null;
 let unsubscribeCart = null;
 
 /* =========================
+   NAV TOGGLES
+========================= */
+
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const navMenu = document.getElementById("navMenu");
+const dropdown = document.querySelector(".dropdown");
+const dropdownBtn = document.getElementById("accountDropdownBtn");
+
+hamburgerBtn?.addEventListener("click", () => {
+  navMenu?.classList.toggle("open");
+});
+
+dropdownBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dropdown?.classList.toggle("open");
+});
+
+document.addEventListener("click", (e) => {
+  if (!dropdown?.contains(e.target)) {
+    dropdown?.classList.remove("open");
+  }
+});
+
+/* =========================
    AUTH GUARD
 ========================= */
 
@@ -35,7 +59,6 @@ onAuthStateChanged(auth, async (user) => {
 
   currentUser = user;
 
-  // 🔥 Check admin claim and show navbar link
   const token = await getIdTokenResult(user);
   const adminLink = document.getElementById("adminLink");
 
@@ -54,7 +77,6 @@ onAuthStateChanged(auth, async (user) => {
   listenToCart(user.uid);
 });
 
-
 /* =========================
    LOGOUT
 ========================= */
@@ -63,7 +85,6 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.replace("index.html");
 });
-
 
 /* =========================
    PRODUCTS
@@ -76,8 +97,11 @@ async function renderProducts() {
 
   container.innerHTML = "";
 
-  const productsRef = collection(db, "products");
-  const q = query(productsRef, orderBy("displayOrder", "asc"));
+  const q = query(
+    collection(db, "products"),
+    orderBy("displayOrder", "asc")
+  );
+
   const snapshot = await getDocs(q);
 
   snapshot.forEach(docSnap => {
@@ -95,7 +119,6 @@ async function renderProducts() {
       <h2>${product.code}</h2>
       <p>${product.description}</p>
       <p><strong>$${product.price}</strong></p>
-
       <input type="number" class="qtyInput" value="1" min="1">
       <button class="btn addToCart">Add to Cart</button>
     `;
@@ -130,9 +153,8 @@ async function renderProducts() {
   });
 }
 
-
 /* =========================
-   CART LISTENER
+   CART
 ========================= */
 
 function listenToCart(uid) {

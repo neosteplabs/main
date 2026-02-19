@@ -1,71 +1,45 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>Catalog | NeoStep</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Account | NeoStep</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <header class="navbar">
   <div class="nav-container">
-
     <a href="catalog.html">
       <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
     </a>
-
     <ul class="nav-links">
-      <li><a href="catalog.html">Catalog</a></li>
-      <li><a href="account.html" class="active">Account</a></li>
-
-      <li id="cartIcon" class="cart-wrapper">
-        🛒
-        <span id="cartBadge">0</span>
+      <li><a href="catalog.html" class="active">Catalog</a></li>
+      <li class="dropdown">
+        <a href="#">Account ▾</a>
+        <div class="dropdown-menu">
+          <a href="account.html">Profile</a>
+          <a href="admin.html" id="adminLink" style="display:none;">
+            Dashboard <span class="admin-badge">ADMIN</span>
+          </a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
       </li>
-
-      <li id="logoutBtn">Logout</li>
     </ul>
-
   </div>
 </header>
 
 <main>
-
   <h1>My Account</h1>
-
-  <!-- TAB SWITCHER -->
-  <div class="account-tabs">
-    <button id="profileTabBtn" class="active">Profile</button>
-    <button id="ordersTabBtn">Order History</button>
-  </div>
-
-  <!-- PROFILE SECTION -->
-  <div id="profileSection">
-
-    <h2>Profile Information</h2>
-
-    <p><strong>Email:</strong> <span id="emailDisplay">-</span></p>
-    <p><strong>Phone:</strong> <span id="phoneDisplay">-</span></p>
-    <p><strong>Address:</strong> <span id="addressDisplay">-</span></p>
-    <p><strong>Referral Code:</strong> <span id="referralDisplay">-</span></p>
-
-    <a href="complete-profile.html" class="btn">Edit Profile</a>
-
-  </div>
-
-  <!-- ORDERS SECTION -->
-  <div id="ordersSection" style="display:none;">
-    <h2>Order History</h2>
-    <div id="ordersContainer"></div>
-  </div>
-
+  <div id="productContainer" class="product-grid"></div>
 </main>
 
 <footer class="footer">
   © 2026 NeoStep. Research use only.
 </footer>
 
-<script type="module" src="js/account.js"></script>
+<script type="module" src="js/navbar.js"></script>
+<script type="module" src="js/catalog.js"></script>
 </body>
 </html>

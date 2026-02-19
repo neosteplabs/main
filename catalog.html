@@ -1,89 +1,45 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Catalog | NeoStep</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
-
-<!-- =========================
-     NAVBAR
-========================= -->
 
 <header class="navbar">
   <div class="nav-container">
-
-    <!-- LEFT: LOGO -->
-    <img src="assets/logo/neostep-logo-header.jpg"
-         class="header-logo"
-         alt="NeoStep Logo">
-
-    <!-- RIGHT: NAV LINKS -->
+    <a href="catalog.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    </a>
     <ul class="nav-links">
       <li><a href="catalog.html" class="active">Catalog</a></li>
-      <li><a href="admin.html" id="adminLink" style="display:none;">Dashboard</a></li>
-      <li><a href="account.html">Account</a></li>
-      <li><button id="logoutBtn">Logout</button></li>
+      <li class="dropdown">
+        <a href="#">Account ▾</a>
+        <div class="dropdown-menu">
+          <a href="account.html">Profile</a>
+          <a href="admin.html" id="adminLink" style="display:none;">
+            Dashboard <span class="admin-badge">ADMIN</span>
+          </a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </li>
     </ul>
-
   </div>
 </header>
 
-<!-- =========================
-     FLOATING MOBILE CART
-========================= -->
-
-<div id="mobileCartBubble" class="mobile-cart-bubble">
-  Cart (<span id="mobileCartCount">0</span>)
-</div>
-
-<!-- =========================
-     MAIN CONTENT
-========================= -->
-
 <main>
-
   <h1>Research Compound Catalog</h1>
-
-  <div id="productContainer" class="product-grid">
-    <!-- Products render here -->
-  </div>
-
+  <div id="productContainer" class="product-grid"></div>
 </main>
-
-<!-- =========================
-     CART DROPDOWN
-========================= -->
-
-<div class="cart-wrapper">
-  <div id="cartDropdown" class="cart-dropdown">
-
-    <div id="cartItems"></div>
-
-    <div class="cart-footer">
-      <div id="cartTotal">Total: $0</div>
-      <button id="goCheckout" class="btn">Checkout</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- =========================
-     FOOTER
-========================= -->
 
 <footer class="footer">
   © 2026 NeoStep. Research use only.
 </footer>
 
-<!-- =========================
-     SCRIPT
-========================= -->
-
+<script type="module" src="js/navbar.js"></script>
 <script type="module" src="js/catalog.js"></script>
-
 </body>
 </html>

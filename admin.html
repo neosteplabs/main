@@ -1,29 +1,45 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard | NeoStep</title>
+  <title>Catalog | NeoStep</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
 
 <header class="navbar">
   <div class="nav-container">
-    <h2>Admin Dashboard</h2>
-    <button id="logoutBtn" class="btn">Logout</button>
+    <a href="catalog.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    </a>
+    <ul class="nav-links">
+      <li><a href="catalog.html" class="active">Catalog</a></li>
+      <li class="dropdown">
+        <a href="#">Account ▾</a>
+        <div class="dropdown-menu">
+          <a href="account.html">Profile</a>
+          <a href="admin.html" id="adminLink" style="display:none;">
+            Dashboard <span class="admin-badge">ADMIN</span>
+          </a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </li>
+    </ul>
   </div>
 </header>
 
 <main>
-  <div class="admin-container">
-    <h3>Products</h3>
-    <div id="adminProducts"></div>
-  </div>
+  <h1>Admin Dashboard</h1>
+  <div id="productContainer" class="product-grid"></div>
 </main>
 
-<script type="module" src="js/admin.js"></script>
+<footer class="footer">
+  © 2026 NeoStep. Research use only.
+</footer>
 
+<script type="module" src="js/navbar.js"></script>
+<script type="module" src="js/catalog.js"></script>
 </body>
 </html>

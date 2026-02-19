@@ -1,146 +1,106 @@
-/* =========================
-   GLOBAL
-========================= */
 
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f3f4f6;
   color: #1e293b;
 }
-
 main {
   max-width: 1100px;
-  margin: 140px auto 80px auto;
+  margin: 120px auto 80px auto;
   padding: 0 20px;
 }
-
-h1 {
-  font-size: 40px;
-  margin-bottom: 30px;
-}
-
-h2 {
-  margin-top: 0;
-}
-
+h1 { font-size: 38px; margin-bottom: 30px; }
 .footer {
   text-align: center;
   padding: 40px 20px;
-  color: #6b7280;
   font-size: 14px;
+  color: #6b7280;
 }
 
-/* =========================
-   NAVBAR
-========================= */
-
+/* NAVBAR */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 2000;
-  padding: 20px 16px;
-  background: transparent;
+  padding: 20px;
 }
-
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: #f8f9fb;
+  background: #ffffff;
   border-radius: 60px;
-  padding: 14px 22px;
+  padding: 14px 24px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  overflow: visible;
 }
-
-.header-logo {
-  height: 40px;
-  flex-shrink: 0;
-}
-
+.header-logo { height: 40px; }
 .nav-links {
   list-style: none;
   display: flex;
-  align-items: center;
-  gap: 22px;
+  gap: 24px;
   margin: 0;
   padding: 0;
-  flex-wrap: nowrap;
-}
-
-.nav-links li {
-  display: flex;
   align-items: center;
 }
-
-.nav-links a,
-#logoutBtn {
+.nav-links a {
   text-decoration: none;
   font-weight: 600;
   color: #1e293b;
-  font-size: 15px;
-  white-space: nowrap;
-  cursor: pointer;
+}
+.nav-links a.active { color: #2563eb; }
+
+.admin-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
 }
 
-.nav-links a.active {
-  color: #2563eb;
+.dropdown { position: relative; }
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  padding: 10px 0;
+  display: none;
+  min-width: 180px;
 }
+.dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+}
+.dropdown.open .dropdown-menu { display: block; }
 
-/* =========================
-   PRODUCT GRID
-========================= */
-
+/* PRODUCT GRID */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
 }
-
 .product-card {
-  background: white;
+  background: #fff;
   border-radius: 30px;
   padding: 30px;
   text-align: center;
   box-shadow: 0 20px 50px rgba(0,0,0,0.06);
 }
-
 .product-image {
   max-width: 100%;
   border-radius: 20px;
   margin-bottom: 20px;
 }
-
-/* =========================
-   FORM ELEMENTS
-========================= */
-
-select,
-input[type="number"],
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  margin-bottom: 12px;
-  font-size: 14px;
-  background: #fff;
-}
-
 .btn {
   background: #2563eb;
-  color: white;
+  color: #fff;
   padding: 12px 20px;
   border: none;
   border-radius: 14px;
@@ -149,248 +109,8 @@ input[type="text"] {
   width: 100%;
 }
 
-.btn:hover {
-  opacity: 0.9;
-}
-
-/* =========================
-   ACCOUNT PAGE
-========================= */
-
-.account-tabs {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.tab-btn {
-  padding: 10px 18px;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  background: #e5e7eb;
-  font-weight: 600;
-}
-
-.tab-btn.active {
-  background: #2563eb;
-  color: white;
-}
-
-#profileSection,
-#ordersSection {
-  background: white;
-  padding: 30px;
-  border-radius: 30px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-}
-
-.order-card {
-  background: #f8f9fb;
-  padding: 18px;
-  border-radius: 20px;
-  margin-bottom: 15px;
-}
-
-/* =========================
-   CART DROPDOWN
-========================= */
-
-.cart-wrapper {
-  position: relative;
-}
-
-.cart-dropdown {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  width: 320px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-  padding: 20px;
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-  transition: all 0.25s ease;
-  z-index: 3000;
-}
-
-.cart-dropdown.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  font-size: 14px;
-}
-
-.cart-footer {
-  margin-top: 15px;
-  border-top: 1px solid #eee;
-  padding-top: 10px;
-}
-
-.mini-qty {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 5px;
-}
-
-.mini-qty button {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  padding: 0;
-  font-size: 14px;
-  border: none;
-  background: #e5e7eb;
-  cursor: pointer;
-}
-
-/* =========================
-   MOBILE FLOATING CART
-========================= */
-
-.mobile-cart-bubble {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #2563eb;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 40px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-  font-weight: 600;
-  display: none;
-  z-index: 5000;
-  cursor: pointer;
-}
-
-/* =========================
-   AUTH CARD (INDEX)
-========================= */
-
-.auth-card {
-  background: white;
-  padding: 40px;
-  border-radius: 30px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-  max-width: 420px;
-  margin: 0 auto;
-}
-
-/* =========================
-   COMPLETE PROFILE PAGE
-========================= */
-
-.profile-container {
-  max-width: 760px;
-  margin: 0 auto;
-}
-
-.profile-card {
-  background: white;
-  padding: 40px;
-  border-radius: 30px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-}
-
-.profile-card h1 {
-  margin-bottom: 30px;
-}
-
-/* GRID FIX */
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-/* Make full width rows */
-.profile-grid .full-width {
-  grid-column: span 2;
-}
-
-.profile-grid input,
-.profile-grid select {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  background: #fff;
-}
-
-/* Save button aligned right on desktop */
-.profile-actions {
-  margin-top: 30px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.profile-actions button {
-  width: auto;
-  min-width: 160px;
-  padding: 12px 26px;
-  border-radius: 14px;
-  font-weight: 600;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
+/* MOBILE */
 @media (max-width: 768px) {
-
-  main {
-    margin: 120px auto 60px auto;
-    padding: 0 16px;
-  }
-
-  .nav-container {
-    padding: 12px 18px;
-  }
-
-  .nav-links {
-    gap: 14px;
-  }
-
-  .header-logo {
-    height: 34px;
-  }
-
-  .nav-links a,
-  #logoutBtn {
-    font-size: 14px;
-  }
-
-  .mobile-cart-bubble {
-    display: block;
-  }
-
-  h1 {
-    font-size: 30px;
-  }
-
-  /* Profile stacks cleanly */
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-grid .full-width {
-    grid-column: span 1;
-  }
-
-  .profile-actions {
-    justify-content: center;
-  }
-
-  .profile-actions button {
-    width: 100%;
-  }
+  .nav-links { flex-direction: column; gap: 16px; }
+  h1 { font-size: 28px; }
 }
