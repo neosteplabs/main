@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Admin Tools</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-container">
+    <a href="catalog.html">
+      <img src="assets/logo/neostep-logo-header.jpg" class="header-logo">
+    </a>
+
+    <div class="nav-right">
+      <a href="catalog.html" class="nav-link">Catalog</a>
+
+      <div class="dropdown">
+        <button class="dropdown-toggle">Account ▾</button>
+        <div class="dropdown-menu">
+          <a href="account.html">Profile</a>
+          <a href="admin.html">Dashboard</a>
+          <a href="admin-tools.html">Advanced Tools</a>
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Advanced Admin Tools</h1>
+
+  <div class="product-card" style="max-width:600px;">
+    <h2>Tier Pricing Migration</h2>
+    <p>Converts legacy price field to tier-based pricing.</p>
+    <button class="btn" id="runMigration">Run Migration</button>
+    <pre id="output" style="margin-top:20px; font-size:13px;"></pre>
+  </div>
+
+</main>
+
+<script type="module" src="js/admin-tools.js"></script>
+</body>
+</html>
