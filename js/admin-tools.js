@@ -42,13 +42,11 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
 });
 
 /* =========================
-   TIER PRICE RECALCULATION
-   VIP = public - 20
-   Family = public - 30
+   TIER RECALCULATION
 ========================= */
 
 const runBtn = document.getElementById("runMigration");
-const output = document.getElementById("migrationOutput");
+const output = document.getElementById("output");
 
 runBtn?.addEventListener("click", async () => {
 
@@ -93,7 +91,6 @@ runBtn?.addEventListener("click", async () => {
     output.textContent += "\nRecalculation complete.";
 
   } catch (error) {
-
     output.textContent += `\nError: ${error.message}`;
   }
 
