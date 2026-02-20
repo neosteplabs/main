@@ -1,69 +1,35 @@
 import { auth } from "./firebase-config.js";
+
 import {
   onAuthStateChanged,
-  signOut,
-  getIdTokenResult
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* =========================
-   NAVBAR AUTH + ADMIN LINK
-========================= */
-
-const adminLink = document.getElementById("adminLink");
-const logoutBtn = document.getElementById("logoutBtn");
-
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    if (adminLink) adminLink.style.display = "none";
-    return;
-  }
 
-  try {
-    const token = await getIdTokenResult(user);
-    const isAdmin = token.claims.admin === true;
+  if (!user) return;
 
-    if (adminLink) {
-      adminLink.style.display = isAdmin ? "block" : "none";
-    }
-  } catch (err) {
-    console.error("Admin check failed:", err);
+  const token = await user.getIdTokenResult(true);
+  const isAdmin = token.claims.admin === true;
+
+  const dropdownMenu = document.querySelector(".dropdown-menu");
+
+  if (!dropdownMenu) return;
+
+  if (isAdmin) {
+    const toolsLink = document.createElement("a");
+    toolsLink.href = "admin-tools.html";
+    toolsLink.textContent = "Advanced Tools";
+
+    dropdownMenu.insertBefore(
+      toolsLink,
+      dropdownMenu.querySelector("#logoutBtn")
+    );
   }
 });
 
-/* =========================
-   LOGOUT
-========================= */
-
-logoutBtn?.addEventListener("click", async (e) => {
-  e.preventDefault();
+/* LOGOUT */
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "index.html";
+  window.location.replace("index.html");
 });
-
-/* =========================
-   CLICK DROPDOWN SYSTEM
-========================= */
-
-const dropdown = document.querySelector(".dropdown");
-const toggle = document.querySelector(".dropdown-toggle");
-const menu = document.querySelector(".dropdown-menu");
-
-if (dropdown && toggle && menu) {
-
-  toggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle("open");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target)) {
-      dropdown.classList.remove("open");
-    }
-  });
-
-  menu.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", () => {
-      dropdown.classList.remove("open");
-    });
-  });
-}
