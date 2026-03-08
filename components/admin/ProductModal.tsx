@@ -29,7 +29,7 @@ export default function ProductModal({ product, onClose, onSaved }: Props) {
     field: "public" | "stock",
     value: number
   ) => {
-    setConcentrations((prev) =>
+    setConcentrations((prev: any[]) =>
       prev.map((item: any, i: number) => {
         if (i !== index) return item;
 
