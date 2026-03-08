@@ -100,7 +100,7 @@ export async function POST(req: Request) {
         );
       }
 
-      const product = productSnap.data();
+      const product = productSnap.data() as any;
 
       const concentration = product?.concentrations?.find(
         (c: any) => c.sku === sku
