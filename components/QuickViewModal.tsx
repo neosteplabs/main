@@ -11,7 +11,6 @@ type Props = {
 
 export default function QuickViewModal({ product, onClose }: Props) {
 
-export default function QuickViewModal({ product, onClose }) {
   const { addToCart } = useCart();
 
   const [selectedIndex, setSelectedIndex] = useState(0);
