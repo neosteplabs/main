@@ -34,52 +34,72 @@ function AccountContent() {
   useEffect(() => {
     if (!user) return;
 
+    const uid = user.uid;
+    let isMounted = true;
+
     async function fetchData() {
-      const profileSnap = await getDoc(doc(db, "users", user.uid));
-      if (profileSnap.exists()) {
-        setProfile(profileSnap.data());
+      try {
+        // Fetch profile
+        const profileSnap = await getDoc(doc(db, "users", uid));
+
+        if (profileSnap.exists() && isMounted) {
+          setProfile(profileSnap.data());
+        }
+
+        // Fetch orders
+        const q = query(
+          collection(db, "orders"),
+          where("uid", "==", uid),
+          orderBy("createdAt", "desc")
+        );
+
+        const orderSnap = await getDocs(q);
+
+        if (isMounted) {
+          setOrders(
+            orderSnap.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Account fetch error:", error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      const q = query(
-        collection(db, "orders"),
-        where("uid", "==", user.uid),
-        orderBy("createdAt", "desc")
-      );
-
-      const orderSnap = await getDocs(q);
-
-      setOrders(
-        orderSnap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-      );
-
-      setLoading(false);
     }
 
     fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const handleSave = async () => {
     if (!user) return;
 
-    await updateDoc(doc(db, "users", user.uid), {
-      address1: profile.address1 || "",
-      address2: profile.address2 || "",
-      city: profile.city || "",
-      state: profile.state || "",
-      zip: profile.zip || "",
-      phone: profile.phone || "",
-    });
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        address1: profile?.address1 || "",
+        address2: profile?.address2 || "",
+        city: profile?.city || "",
+        state: profile?.state || "",
+        zip: profile?.zip || "",
+        phone: profile?.phone || "",
+      });
 
-    setEditing(false);
+      setEditing(false);
+    } catch (error) {
+      console.error("Profile update error:", error);
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        Loading...
+        Loading account...
       </div>
     );
   }
@@ -91,9 +111,7 @@ function AccountContent() {
         {/* PROFILE CARD */}
         <div className="bg-white rounded-xl shadow-sm p-10">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-semibold">
-              My Profile
-            </h1>
+            <h1 className="text-2xl font-semibold">My Profile</h1>
 
             {!editing ? (
               <button
@@ -130,9 +148,7 @@ function AccountContent() {
                   className="mt-1 border rounded-md px-3 py-2 w-full"
                 />
               ) : (
-                <div className="font-medium">
-                  {profile?.phone || "—"}
-                </div>
+                <div className="font-medium">{profile?.phone || "—"}</div>
               )}
             </div>
 
@@ -145,7 +161,6 @@ function AccountContent() {
             </h2>
 
             <div className="space-y-3 text-sm">
-
               {["address1", "address2", "city", "state", "zip"].map((field) => (
                 <div key={field}>
                   <div className="text-slate-500 capitalize">
@@ -170,7 +185,6 @@ function AccountContent() {
                   )}
                 </div>
               ))}
-
             </div>
           </div>
         </div>
