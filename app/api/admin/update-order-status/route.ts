@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = orderSnap.data();
+    // ✅ Type-safe after exists check
+    const order = orderSnap.data() as any;
 
     // 🛑 Prevent unnecessary re-processing
     if (order.status === status) {
@@ -38,17 +39,12 @@ export async function POST(req: NextRequest) {
 
     /**
      * INVENTORY ADJUSTMENT
-     * Only occurs if:
-     * - status is changing to completed
-     * - inventory has not already been adjusted
      */
     if (
       status === "completed" &&
       order.inventoryAdjusted !== true
     ) {
-
       for (const item of order.items) {
-
         const productRef = adminDb
           .collection("products")
           .doc(item.productId);
@@ -62,13 +58,11 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        const product = productSnap.data();
+        const product = productSnap.data() as any;
 
         const concentrations = product.concentrations.map(
           (c: any) => {
-
             if (c.sku === item.sku) {
-
               const newStock = c.stock - item.quantity;
 
               if (newStock < 0) {
@@ -81,18 +75,15 @@ export async function POST(req: NextRequest) {
                 ...c,
                 stock: newStock,
               };
-
             }
 
             return c;
-
           }
         );
 
         batch.update(productRef, {
           concentrations,
         });
-
       }
 
       batch.update(orderRef, {
