@@ -39,7 +39,13 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+// Prevent duplicate pending orders
+const existingOrder = await adminDb
+  .collection("orders")
+  .where("uid", "==", uid)
+  .where("status", "==", "pending")
+  .limit(1)
+  .get();
     // 🔐 Fetch user tier
     const userSnap = await adminDb
       .collection("users")
@@ -71,7 +77,13 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+    
+if (!existingOrder.empty) {
+  return NextResponse.json(
+    { error: "Pending order already exists." },
+    { status: 400 }
+  );
+}
     let subtotal = 0;
     const items: {
   productId: string;
@@ -94,21 +106,6 @@ if (!productId || !sku || typeof quantity !== "number" || quantity <= 0) {
     { status: 400 }
   );
 }
-
-const existingOrder = await adminDb
-  .collection("orders")
-  .where("uid", "==", uid)
-  .where("status", "==", "pending")
-  .limit(1)
-  .get();
-
-if (!existingOrder.empty) {
-  return NextResponse.json(
-    { error: "Pending order already exists." },
-    { status: 400 }
-  );
-}
-
       // 🔐 Fetch authoritative product
       const productSnap = await adminDb
         .collection("products")
@@ -148,7 +145,7 @@ if (!existingOrder.empty) {
         );
       }
 
-      if (quantity - stock < 0) {
+      if (stock - quantity < 0) {
         return NextResponse.json(
           { error: `Insufficient stock for ${product.name} (${sku}).` },
           { status: 400 }
@@ -218,9 +215,9 @@ if (!existingOrder.empty) {
   } catch (error) {
     console.error("Checkout error:", error);
 
-    return NextResponse.json(
-      { error: "Checkout failed." },
-      { status: 500 }
-    );
+return NextResponse.json(
+  { error: error instanceof Error ? error.message : "Checkout failed." },
+  { status: 500 }
+);
   }
 }
