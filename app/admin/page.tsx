@@ -81,6 +81,8 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  if (!auth.currentUser) return;
+
   const unsubscribe = onSnapshot(
     collection(db, "supplierOrders"),
     (snapshot) => {
@@ -92,6 +94,9 @@ useEffect(() => {
       setShipments(items);
     }
   );
+
+  return () => unsubscribe();
+}, [auth.currentUser]);
 
   return () => unsubscribe();
 }, []);
@@ -133,7 +138,7 @@ if (!res.ok) {
 }, [router]);
 
   const fetchUsers = async () => {
-    const token = await auth.currentUser?.getIdToken();
+    const token = await auth.currentUser?.getIdToken(true);
     if (!token) return;
 
     const res = await fetch("/api/admin/get-users", {
